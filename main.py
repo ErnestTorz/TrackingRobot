@@ -1,5 +1,3 @@
-
-
 # Import packages
 import os
 import argparse
