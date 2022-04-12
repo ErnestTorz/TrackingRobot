@@ -197,6 +197,12 @@ while True:
             label_ymin = max(ymin, labelSize[1] + 10) # Make sure not to draw label too close to top of window
             cv2.rectangle(frame, (xmin, label_ymin-labelSize[1]-10), (xmin+labelSize[0], label_ymin+baseLine-10), (255, 255, 255), cv2.FILLED) # Draw white box to put label text in
             cv2.putText(frame, label, (xmin, label_ymin-7), cv2.FONT_HERSHEY_SIMPLEX, 0.7, (0, 0, 0), 2) # Draw label text
+
+            # Draw circle in center of object
+            xcenter = xmin+(int(round((xmax-xmin)/2)))
+            ycenter = ymin+(int(round((ymax-ymin)/2)))
+            cv2.circle(frame,(xcenter,ycenter),5,(0,0,255),thickness=-1)
+            print("Object "+str(i)+": "+object_name+" at ("+str(xcenter)+", "+str(ycenter)+")")
             
     # Draw framerate in corner of frame
     cv2.putText(frame,'FPS: {0:.2f}'.format(frame_rate_calc),(30,50),cv2.FONT_HERSHEY_SIMPLEX,1,(255,255,0),2,cv2.LINE_AA)
