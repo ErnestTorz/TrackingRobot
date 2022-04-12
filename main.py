@@ -188,7 +188,7 @@ while True:
             ymax = int(min(imH,(boxes[i][2] * imH)))
             xmax = int(min(imW,(boxes[i][3] * imW)))
             
-            cv2.rectangle(frame, (xmin,ymin), (xmax,ymax), (0,0,255), 2)
+            cv2.rectangle(frame, (xmin,ymin), (xmax,ymax), (255,255,0), 2)
 
             # Draw label
             object_name = labels[int(classes[i])] # Look up object name from "labels" array using class index
@@ -201,11 +201,11 @@ while True:
             # Draw circle in center of object
             xcenter = xmin+(int(round((xmax-xmin)/2)))
             ycenter = ymin+(int(round((ymax-ymin)/2)))
-            cv2.circle(frame,(xcenter,ycenter),5,(0,0,255),thickness=-1)
+            cv2.circle(frame,(xcenter,ycenter),5,(255,255,0),thickness=-1)
             print("Object "+str(i)+": "+object_name+" at ("+str(xcenter)+", "+str(ycenter)+")")
             
     # Draw framerate in corner of frame
-    cv2.putText(frame,'FPS: {0:.2f}'.format(frame_rate_calc),(30,50),cv2.FONT_HERSHEY_SIMPLEX,1,(255,255,0),2,cv2.LINE_AA)
+    cv2.putText(frame,'FPS: {0:.2f}'.format(frame_rate_calc),(30,50),cv2.FONT_HERSHEY_SIMPLEX,1,(0,0,255),2,cv2.LINE_AA)
 
     # All the results have been drawn on the frame, so it's time to display it.
     cv2.imshow('Object detector', frame)
