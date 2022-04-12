@@ -15,6 +15,5 @@ Następnie w tym samym folderze:
 5) Uruchomić program poleceniem: python3 main.py --modeldir Sample_TFlite_model/
 <br/>
 Uwaga ! <br/>
-Każdorazowe wyłączenie środowiska pracy np. terminala, wiąże się z koniecznością powtórnego włączenia środowiska poleceniem z punktu 3) <br/>
-przy próbie ponownego włączenia programu.
+Każdorazowe wyłączenie środowiska pracy np. terminala, wiąże się z koniecznością powtórnego włączenia środowiska poleceniem z punktu 3), przy próbie ponownego włączenia programu.
 
