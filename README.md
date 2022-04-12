@@ -6,7 +6,8 @@ Autorzy: Ernest Torz, Patrycja Kałużna, Jacek Ziętek, Piotr Czekaj
 <br /> 
 <br />
 # Instrukcja
-W celu uruchomienia programu, należy pobrać projekt, a następnie:
+W celu uruchomienia programu, należy pobrać projekt i wypakować go do folderu. <br/>
+Następnie w tym samym folderze:
 1) Pobrać wirtualne środowisko (jeśli takowe nie jest pobrane), poleceniem: sudo pip3 install virtualenv 
 2) Stworzyć środowisko poleceniem: python3 -m venv nazwa_srodowiska 
 3) Uruchomić środowisko poleceniem: source nazwa_srodowiska/bin/activate 
