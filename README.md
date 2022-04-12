@@ -1,7 +1,7 @@
 # TrackingRobot
 Jest to projekt robota mającego na celu śledzenie człowieka. <br />
-Cały kod napisany został z myślą o knstrukcji robota opartego na Raspberry Pi z podłączoną kamerką. <br />
-Całość sterowania została zaprojektowana z myślą o konstukcji z sterownikiem L298, który reguluje pracę dwóch silników DC. <br />
+Cały kod napisany został z myślą o robocie zbudowanym na Raspberry Pi z podłączoną kamerką. <br />
+Całość sterowania została zaprojektowana z myślą o konstrukcji z sterownikiem L298, który reguluje pracę dwóch silników DC. <br />
 Autorzy: Ernest Torz, Patrycja Kałużna, Jacek Ziętek, Piotr Czekaj
 <br /> 
 <br />
