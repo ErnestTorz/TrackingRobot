@@ -73,18 +73,18 @@ class Robot:
                 self.pwmA.ChangeDutyCycle(speed)
                 self.pwmB.ChangeDutyCycle(speed)
 
-      ##Example use##
-import time
-robot=Robot(21,20,16,26,19,13)
-time.sleep(10)
-robot.linear_drive("f",30)
-time.sleep(4)
-robot.linear_drive("b",30)
-time.sleep(4)
-robot.rotation_in_place("l",40)
-time.sleep(5)
-robot.rotation_in_place("r",40)
-time.sleep(5)
+#       ##Example use##
+# import time
+# robot=Robot(21,20,16,26,19,13)
+# time.sleep(10)
+# robot.linear_drive("f",30)
+# time.sleep(4)
+# robot.linear_drive("b",30)
+# time.sleep(4)
+# robot.rotation_in_place("l",40)
+# time.sleep(5)
+# robot.rotation_in_place("r",40)
+# time.sleep(5)
 
     
 
