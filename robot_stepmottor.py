@@ -11,8 +11,8 @@ class Robot:
         GPIO.setmode(GPIO.BCM)
         
         GPIO.setup(DIRa,GPIO.OUT)
-        GPIO.setup(STEPa,GPIO.OUT)
         GPIO.output(DIRa,GPIO.LOW)
+        GPIO.setup(STEPa,GPIO.OUT)
         self.pwmA=GPIO.PWM(STEPa,self.frequency)
         self.pwmA.start(0)
 
