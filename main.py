@@ -9,6 +9,9 @@ from threading import Thread
 import cv2
 import numpy as np
 
+from robot import Robot
+
+robot=Robot(21,20,16,26,19,13)
 
 class VideoStream:
     """Camera object that controls video streaming from the Picamera"""
@@ -61,7 +64,7 @@ parser.add_argument('--labels', help='Name of the labelmap file, if different th
 parser.add_argument('--threshold', help='Minimum confidence threshold for displaying detected objects',
                     default=0.5)
 parser.add_argument('--resolution', help='Desired webcam resolution in WxH. If the webcam does not support the resolution entered, errors may occur.',
-                    default='1440x1080') #1280x720 tez dobra
+                    default='720x720') #1280x720 tez dobra
 parser.add_argument('--edgetpu', help='Use Coral Edge TPU Accelerator to speed up detection',
                     action='store_true')
 
@@ -181,7 +184,7 @@ while True:
 
     # Loop over all detections and draw detection box if confidence is above minimum threshold
     for i in range(len(scores)):
-        if ((scores[i] > min_conf_threshold) and (scores[i] <= 1.0)):
+        if ((scores[i] > min_conf_threshold) and (scores[i] <= 1.0) and labels[int(classes[i])]=='person'):
 
             # Get bounding box coordinates and draw box
             # Interpreter can return coordinates that are outside of image dimensions, need to force them to be within image using max() and min()
@@ -204,7 +207,8 @@ while True:
             xcenter = xmin+(int(round((xmax-xmin)/2)))
             ycenter = ymin+(int(round((ymax-ymin)/2)))
             cv2.circle(frame,(xcenter,ycenter),5,(255,255,0),thickness=-1)
-            print("Object "+str(i)+": "+object_name+" at ("+str(xcenter)+", "+str(ycenter)+")")
+            #print("Object "+str(i)+": "+object_name+" at ("+str(xcenter)+", "+str(ycenter)+")")
+            robot.robot_controler(imW,imH,xcenter,ycenter)
             
     # Draw framerate in corner of frame
     cv2.putText(frame,'FPS: {0:.2f}'.format(frame_rate_calc),(30,50),cv2.FONT_HERSHEY_SIMPLEX,1,(0,0,255),2,cv2.LINE_AA)
