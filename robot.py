@@ -1,5 +1,6 @@
 import RPi.GPIO as GPIO
 from cv2 import rotate
+import time
 
 class Robot:
     def __init__(self, ena, in1, in2, in3, in4, enb):
@@ -79,9 +80,13 @@ class Robot:
     def robot_controler(self,frame_x_size,frame_y_size, object_x,object_y):
         if(object_x > (frame_x_size/5)*3):
             #print("l"+str(object_x))
-            self.rotation_in_place('r',33)
+            self.rotation_in_place('r',46)
+            time.sleep(0.13)
+            self.rotation_in_place('l',0)
         if(object_x < (frame_x_size/5)*2):
-           self.rotation_in_place('l',33)
+            self.rotation_in_place('l',46)
+            time.sleep(0.13)
+            self.rotation_in_place('l',0)
            #print("r"+str(object_x))
         if(object_x >=(frame_x_size/5)*2 and object_x <= (frame_x_size/5)*3):
             self.rotation_in_place('l',0)
@@ -90,7 +95,6 @@ class Robot:
 
 
 #       ##Example use##
-import time
 # robot=Robot(21,20,16,26,19,13)
 # time.sleep(10)
 # robot.linear_drive("f",43)
