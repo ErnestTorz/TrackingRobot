@@ -42,7 +42,7 @@ class VideoStream:
                 self.stream.release()
                 return
 
-            # Otherwise, grab the next frame from the stream
+            ## Otherwise, grab the next frame from the stream
             (self.grabbed, self.frame) = self.stream.read()
 
     def read(self):
