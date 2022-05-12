@@ -64,7 +64,7 @@ parser.add_argument('--labels', help='Name of the labelmap file, if different th
 parser.add_argument('--threshold', help='Minimum confidence threshold for displaying detected objects',
                     default=0.5)
 parser.add_argument('--resolution', help='Desired webcam resolution in WxH. If the webcam does not support the resolution entered, errors may occur.',
-                    default='720x720') #1280x720 tez dobra
+                    default='900x720') #1280x720 tez dobra
 parser.add_argument('--edgetpu', help='Use Coral Edge TPU Accelerator to speed up detection',
                     action='store_true')
 
@@ -203,12 +203,13 @@ while True:
             cv2.rectangle(frame, (xmin, label_ymin-labelSize[1]-10), (xmin+labelSize[0], label_ymin+baseLine-10), (255, 255, 255), cv2.FILLED) # Draw white box to put label text in
             cv2.putText(frame, label, (xmin, label_ymin-7), cv2.FONT_HERSHEY_SIMPLEX, 0.7, (0, 0, 0), 2) # Draw label text
 
-            # Draw circle in center of object
+            ## Draw circle in center of object
             xcenter = xmin+(int(round((xmax-xmin)/2)))
             ycenter = ymin+(int(round((ymax-ymin)/2)))
             cv2.circle(frame,(xcenter,ycenter),5,(255,255,0),thickness=-1)
             #print("Object "+str(i)+": "+object_name+" at ("+str(xcenter)+", "+str(ycenter)+")")
-            robot.robot_controler(imW,imH,xcenter,ycenter)
+            #robot.robot_controler(imW,imH,xcenter,ycenter,xmin,xmax,ymin,ymax)
+            robot.run(imW,imH,xcenter,ycenter,xmin,xmax,ymin,ymax)
             
     # Draw framerate in corner of frame
     cv2.putText(frame,'FPS: {0:.2f}'.format(frame_rate_calc),(30,50),cv2.FONT_HERSHEY_SIMPLEX,1,(0,0,255),2,cv2.LINE_AA)
