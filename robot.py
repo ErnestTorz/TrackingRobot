@@ -79,7 +79,7 @@ class Robot:
     
     def robot_controler(self,frame_x_size,frame_y_size, object_x,object_y):
         if(object_x > (frame_x_size/5)*3):
-            #print("l"+str(object_x))
+            ##print("l"+str(object_x))
             self.rotation_in_place('r',46)
             time.sleep(0.13)
             self.rotation_in_place('l',0)
