@@ -55,9 +55,8 @@ class Robot:
         GPIO.output(self.in3,GPIO.LOW)
         GPIO.output(self.in4,GPIO.LOW)
 
-    def linear_drive(self, direction, speed,error):
-        Kp=25
-        minspeed=25
+    def linear_drive(self, direction, speed,error,Kp):
+        minspeed=35
         maxspeed=60
         if isinstance(speed,int) and (100 >= speed >= 0) :
             if direction=="forward" or direction=="Forward" or direction=="f" or direction=="F" :
@@ -70,7 +69,7 @@ class Robot:
                 elif(speed+(error*Kp)) <minspeed:
                     self.pwmA.ChangeDutyCycle(minspeed)
                 else:
-                    self.pwmA.ChangeDutyCycle(speed+(error*Kp))
+                    self.pwmA.ChangeDutyCycle(speed+(error*Kp)+5)
 
                 if(speed-(error*Kp)) >maxspeed:
                     self.pwmB.ChangeDutyCycle(maxspeed)
@@ -83,12 +82,14 @@ class Robot:
                 GPIO.output(self.in4,GPIO.LOW)
                 GPIO.output(self.in2,GPIO.HIGH)
                 GPIO.output(self.in3,GPIO.HIGH)
+                print("MOJA LEWA"+str(speed-(error*Kp)))
+                print(speed+(error*Kp))
                 if(speed-(error*Kp)) >maxspeed:
                     self.pwmA.ChangeDutyCycle(maxspeed)
                 elif(speed-(error*Kp)) <minspeed:
                     self.pwmA.ChangeDutyCycle(minspeed)
                 else:
-                    self.pwmA.ChangeDutyCycle(speed-(error*Kp))
+                    self.pwmA.ChangeDutyCycle(speed-(error*Kp)+10)
 
                 if(speed+(error*Kp)) >maxspeed:
                     self.pwmB.ChangeDutyCycle(maxspeed)
@@ -115,13 +116,17 @@ class Robot:
                 self.pwmB.ChangeDutyCycle(speed)
     
     def robot_controler(self,frame_x_size,frame_y_size, object_x_center,object_y_center,xmin,xmax,ymin,ymax):
-        Kpr=0.29
-        Kpl=3
-        minrotsleep=0.15
+        Kpr=0.5
+        Kplf=25
+        Kplb=50
+        #Kplft=10
+       #Kplbt=7
+        minrotsleep=0.1
         if(object_x_center>= (frame_x_size/5)*3):
             error=((object_x_center-(frame_x_size/5*3))/(frame_x_size-((frame_x_size/5)*3)))
-            self.rotation_in_place('r',30)
-            if(Kpl*error)<minrotsleep:
+            error=math.fabs(error)
+            self.rotation_in_place('r',40)
+            if(Kpr*error)<minrotsleep:
                 time.sleep(minrotsleep)
             else:
                 time.sleep(Kpr*error)
@@ -130,25 +135,27 @@ class Robot:
         elif(object_x_center <= (frame_x_size/5)*2):
             error=(((frame_x_size/5*2)- object_x_center)/((frame_x_size/5)*2))
             error=math.fabs(error)
-            self.rotation_in_place('l',30)
-            if(Kpl*error)<minrotsleep:
+            self.rotation_in_place('l',40)
+            if(Kpr*error)<minrotsleep:
                 time.sleep(minrotsleep)
             else:
-                time.sleep(Kpl*error)
+                time.sleep(Kpr*error)
             self.stop()
 
         elif(((float)(ymax-ymin))/frame_y_size>0.75):
             error=((((float)(ymax-ymin))/frame_y_size)-0.75)/(1-0.75)
             errorX=((frame_x_size/2)-object_x_center)/(frame_x_size/2)
-            self.linear_drive("b",35,errorX)
-            time.sleep(Kpl*error)
-            self.stop()
+            self.linear_drive("b",40,errorX,Kplb)
+            #time.sleep(Kplbt*error)
+           # self.stop()
 
         elif(((float)(ymax-ymin))/frame_y_size<0.65):
             error=(0.65-(((float)(ymax-ymin))/frame_y_size))/0.65
             errorX=((frame_x_size/2)-object_x_center)/(frame_x_size/2)
-            self.linear_drive("f",35,errorX)
-            time.sleep(Kpl*error)
+            self.linear_drive("f",40,errorX,Kplf)
+            #time.sleep(Kplft*error)
+            #self.stop()
+        else:
             self.stop()
         
         

@@ -64,7 +64,7 @@ parser.add_argument('--labels', help='Name of the labelmap file, if different th
 parser.add_argument('--threshold', help='Minimum confidence threshold for displaying detected objects',
                     default=0.5)
 parser.add_argument('--resolution', help='Desired webcam resolution in WxH. If the webcam does not support the resolution entered, errors may occur.',
-                    default='400x300') #1280x720 tez dobra
+                    default='600x500') #1280x720 tez dobra 400x300
 parser.add_argument('--edgetpu', help='Use Coral Edge TPU Accelerator to speed up detection',
                     action='store_true')
 
@@ -186,7 +186,7 @@ while True:
 
     # Loop over all detections and draw detection box if confidence is above minimum threshold
     for i in range(len(scores)):
-        if ((scores[i] > min_conf_threshold) and (scores[i] <= 1.0) and labels[int(classes[i])]=='person'):
+        if ((scores[i] > min_conf_threshold) and (scores[i] <= 1.0) and (labels[int(classes[i])]=='person' or labels[int(classes[i])]=='Person')):
 
             # Get bounding box coordinates and draw box
             # Interpreter can return coordinates that are outside of image dimensions, need to force them to be within image using max() and min()
