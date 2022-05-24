@@ -5,9 +5,11 @@ import os
 import sys
 import time
 from threading import Thread
+from Object import object
 
 import cv2
 import numpy as np
+import math
 
 from robot import Robot
 
@@ -62,7 +64,7 @@ parser.add_argument('--graph', help='Name of the .tflite file, if different than
 parser.add_argument('--labels', help='Name of the labelmap file, if different than labelmap.txt',
                     default='labelmap.txt')
 parser.add_argument('--threshold', help='Minimum confidence threshold for displaying detected objects',
-                    default=0.5)
+                    default=0.6)
 parser.add_argument('--resolution', help='Desired webcam resolution in WxH. If the webcam does not support the resolution entered, errors may occur.',
                     default='600x500') #1280x720 tez dobra 400x300
 parser.add_argument('--edgetpu', help='Use Coral Edge TPU Accelerator to speed up detection',
@@ -157,6 +159,8 @@ videostream = VideoStream(resolution=(imW,imH),framerate=30).start()
 time.sleep(1)
 
 #for frame1 in camera.capture_continuous(rawCapture, format="bgr",use_video_port=True):
+detection_list=[]
+object_to_follow=object(0,0,0,0,0,0,0,0)
 while True:
 
     # Start timer (for calculating frame rate)
@@ -211,7 +215,8 @@ while True:
             cv2.circle(frame,(xcenter,ycenter),5,(255,255,0),thickness=-1)
             #print("Object "+str(i)+": "+object_name+" at ("+str(xcenter)+", "+str(ycenter)+")")
             #robot.robot_controler(imW,imH,xcenter,ycenter,xmin,xmax,ymin,ymax)
-            robot.run(imW,imH,xcenter,ycenter,xmin,xmax,ymin,ymax)
+            detection_list.append(object(imW,imH,xcenter,ycenter,xmin,xmax,ymin,ymax))
+            #robot.run(imW,imH,xcenter,ycenter,xmin,xmax,ymin,ymax)
             
     # Draw framerate in corner of frame
     cv2.putText(frame,'FPS: {0:.2f}'.format(frame_rate_calc),(30,50),cv2.FONT_HERSHEY_SIMPLEX,1,(0,0,255),2,cv2.LINE_AA)
@@ -223,7 +228,20 @@ while True:
     t2 = cv2.getTickCount()
     time1 = (t2-t1)/freq
     frame_rate_calc= 1/time1
-
+    
+    min_distance=math.inf
+    next_object=object(0,0,0,0,0,0,0,0)
+    for i in detection_list:
+        if object_to_follow.distance(i) < min_distance :
+            next_object=i
+            min_distance=object_to_follow.distance(i)
+    
+    if len(detection_list)!=0:
+        object_to_follow=next_object
+        robot.run(object_to_follow.imW,object_to_follow.imH,object_to_follow.xcenter,object_to_follow.ycenter,object_to_follow.xmin,object_to_follow.xmax,object_to_follow.ymin,object_to_follow.ymax)
+    else:
+        robot.stop()
+    detection_list.clear()
     # Press 'q' to quit
     if cv2.waitKey(1) == ord('q'):
         break
