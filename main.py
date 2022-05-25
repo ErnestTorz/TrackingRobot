@@ -133,8 +133,7 @@ input_details = interpreter.get_input_details()
 output_details = interpreter.get_output_details()
 height = input_details[0]['shape'][1]
 width = input_details[0]['shape'][2]
-print(width)
-print(height)
+
 
 floating_model = (input_details[0]['dtype'] == np.float32)
 
@@ -160,7 +159,10 @@ time.sleep(1)
 
 #for frame1 in camera.capture_continuous(rawCapture, format="bgr",use_video_port=True):
 detection_list=[]
-object_to_follow=object(0,0,0,0,0,0,0,0)
+object_to_follow=object(imW,imH,imH/2,imW/2,0,imW,0,imH)
+next_object=object(0,0,0,0,0,0,0,0)
+min_distance=math.inf
+counter=0
 while True:
 
     # Start timer (for calculating frame rate)
@@ -221,6 +223,24 @@ while True:
     # Draw framerate in corner of frame
     cv2.putText(frame,'FPS: {0:.2f}'.format(frame_rate_calc),(30,50),cv2.FONT_HERSHEY_SIMPLEX,1,(0,0,255),2,cv2.LINE_AA)
 
+    
+    
+    counter+=1
+    for i in detection_list:
+        if object_to_follow.distance(i) < min_distance and next_object.xcenter>=object_to_follow.xmin and next_object.xcenter<=object_to_follow.xmax and next_object.ycenter>=object_to_follow.ymin and next_object.ycenter<=object_to_follow.ymax  :
+            next_object=i
+            min_distance=object_to_follow.distance(i)
+    detection_list.clear()
+    
+    if min_distance!=math.inf :
+        min_distance=math.inf
+        object_to_follow=next_object
+        cv2.circle(frame,(object_to_follow.xcenter,object_to_follow.ycenter),5,(0,0,255),thickness=-1)
+        robot.run(object_to_follow.imW,object_to_follow.imH,object_to_follow.xcenter,object_to_follow.ycenter,object_to_follow.xmin,object_to_follow.xmax,object_to_follow.ymin,object_to_follow.ymax)
+    else:
+        robot.stop()
+    # Press 'q' to quit
+
     # All the results have been drawn on the frame, so it's time to display it.
     cv2.imshow('Object detector', frame)
 
@@ -228,21 +248,7 @@ while True:
     t2 = cv2.getTickCount()
     time1 = (t2-t1)/freq
     frame_rate_calc= 1/time1
-    
-    min_distance=math.inf
-    next_object=object(0,0,0,0,0,0,0,0)
-    for i in detection_list:
-        if object_to_follow.distance(i) < min_distance :
-            next_object=i
-            min_distance=object_to_follow.distance(i)
-    
-    if len(detection_list)!=0:
-        object_to_follow=next_object
-        robot.run(object_to_follow.imW,object_to_follow.imH,object_to_follow.xcenter,object_to_follow.ycenter,object_to_follow.xmin,object_to_follow.xmax,object_to_follow.ymin,object_to_follow.ymax)
-    else:
-        robot.stop()
-    detection_list.clear()
-    # Press 'q' to quit
+
     if cv2.waitKey(1) == ord('q'):
         break
 

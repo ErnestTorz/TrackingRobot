@@ -82,8 +82,8 @@ class Robot:
                 GPIO.output(self.in4,GPIO.LOW)
                 GPIO.output(self.in2,GPIO.HIGH)
                 GPIO.output(self.in3,GPIO.HIGH)
-                print("MOJA LEWA"+str(speed-(error*Kp)))
-                print(speed+(error*Kp))
+                # print("MOJA LEWA"+str(speed-(error*Kp)))
+                # print(speed+(error*Kp))
                 if(speed-(error*Kp)) >maxspeed:
                     self.pwmA.ChangeDutyCycle(maxspeed)
                 elif(speed-(error*Kp)) <minspeed:
