@@ -1,9 +1,7 @@
 import math
 class object:
 
-    def __init__(self,imW,imH,xcenter,ycenter,xmin,xmax,ymin,ymax ):   
-        self.imW=imW
-        self.imH=imH
+    def __init__(self,xcenter,ycenter,xmin,xmax,ymin,ymax ):   
         self.xcenter=xcenter
         self.ycenter=ycenter
         self.xmin=xmin

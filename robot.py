@@ -56,20 +56,21 @@ class Robot:
         GPIO.output(self.in4,GPIO.LOW)
 
     def linear_drive(self, direction, speed,error,Kp):
-        minspeed=35
-        maxspeed=60
+        minspeed=70.00
+        maxspeed=100.00
         if isinstance(speed,int) and (100 >= speed >= 0) :
             if direction=="forward" or direction=="Forward" or direction=="f" or direction=="F" :
                 GPIO.output(self.in2,GPIO.LOW)
                 GPIO.output(self.in3,GPIO.LOW)
                 GPIO.output(self.in1,GPIO.HIGH)
                 GPIO.output(self.in4,GPIO.HIGH)
-                if(speed+(error*Kp)) >maxspeed:
+                if (speed+(error*Kp))>=maxspeed:
                     self.pwmA.ChangeDutyCycle(maxspeed)
-                elif(speed+(error*Kp)) <minspeed:
+                elif(speed+(error*Kp))<=minspeed:
                     self.pwmA.ChangeDutyCycle(minspeed)
                 else:
-                    self.pwmA.ChangeDutyCycle(speed+(error*Kp)+5)
+                    print(speed+(error*Kp))
+                    self.pwmA.ChangeDutyCycle(speed+(error*Kp))
 
                 if(speed-(error*Kp)) >maxspeed:
                     self.pwmB.ChangeDutyCycle(maxspeed)
@@ -89,7 +90,7 @@ class Robot:
                 elif(speed-(error*Kp)) <minspeed:
                     self.pwmA.ChangeDutyCycle(minspeed)
                 else:
-                    self.pwmA.ChangeDutyCycle(speed-(error*Kp)+10)
+                    self.pwmA.ChangeDutyCycle(speed-(error*Kp))
 
                 if(speed+(error*Kp)) >maxspeed:
                     self.pwmB.ChangeDutyCycle(maxspeed)
@@ -116,8 +117,8 @@ class Robot:
                 self.pwmB.ChangeDutyCycle(speed)
     
     def robot_controler(self,frame_x_size,frame_y_size, object_x_center,object_y_center,xmin,xmax,ymin,ymax):
-        Kpr=0.5
-        Kplf=25
+        Kpr=1.5
+        Kplf=70
         Kplb=50
         #Kplft=10
        #Kplbt=7
@@ -125,34 +126,34 @@ class Robot:
         if(object_x_center>= (frame_x_size/5)*3):
             error=((object_x_center-(frame_x_size/5*3))/(frame_x_size-((frame_x_size/5)*3)))
             error=math.fabs(error)
-            self.rotation_in_place('r',40)
-            if(Kpr*error)<minrotsleep:
-                time.sleep(minrotsleep)
-            else:
-                time.sleep(Kpr*error)
-            self.stop()
+            self.rotation_in_place('r',100)
+            # if(Kpr*error)<minrotsleep:
+            #     time.sleep(minrotsleep)
+            # else:
+            #     time.sleep(Kpr*error)
+            # self.stop()
 
         elif(object_x_center <= (frame_x_size/5)*2):
             error=(((frame_x_size/5*2)- object_x_center)/((frame_x_size/5)*2))
             error=math.fabs(error)
-            self.rotation_in_place('l',40)
-            if(Kpr*error)<minrotsleep:
-                time.sleep(minrotsleep)
-            else:
-                time.sleep(Kpr*error)
-            self.stop()
+            self.rotation_in_place('l',100)
+            # if(Kpr*error)<minrotsleep:
+            #     time.sleep(minrotsleep)
+            # else:
+            #     time.sleep(Kpr*error)
+            # self.stop()
 
         elif(((float)(ymax-ymin))/frame_y_size>0.75):
             error=((((float)(ymax-ymin))/frame_y_size)-0.75)/(1-0.75)
             errorX=((frame_x_size/2)-object_x_center)/(frame_x_size/2)
-            self.linear_drive("b",40,errorX,Kplb)
+            self.linear_drive("b",100,errorX,Kplb)
             #time.sleep(Kplbt*error)
            # self.stop()
 
         elif(((float)(ymax-ymin))/frame_y_size<0.65):
             error=(0.65-(((float)(ymax-ymin))/frame_y_size))/0.65
             errorX=((frame_x_size/2)-object_x_center)/(frame_x_size/2)
-            self.linear_drive("f",40,errorX,Kplf)
+            self.linear_drive("f",100,errorX,Kplf)
             #time.sleep(Kplft*error)
             #self.stop()
         else:
@@ -165,14 +166,14 @@ class Robot:
 #       ##Example use##
 # robot=Robot(21,20,16,26,19,13)
 # time.sleep(5)
-# robot.linear_drive("f",43)
-# time.sleep(4)
-# robot.linear_drive("b",43)
-# time.sleep(4)
-# robot.rotation_in_place("l",30)
-# time.sleep(5)
-# robot.rotation_in_place("r",43)
-# time.sleep(5)
+# # robot.linear_drive("f",43)
+# # time.sleep(4)
+# # robot.linear_drive("b",43)
+# # time.sleep(4)
+# robot.rotation_in_place("l",100)
+# time.sleep(10)
+# robot.rotation_in_place("r",100)
+# time.sleep(10)
 
     
 
