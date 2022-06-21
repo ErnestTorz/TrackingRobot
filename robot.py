@@ -110,27 +110,19 @@ class Robot:
                 self.pwmB.ChangeDutyCycle(speed)
     
     def robot_controler(self, frame_x_size, frame_y_size, object_x_center, object_y_center, xmin, xmax, ymin, ymax):
-        Kpr = 1.5
-        Kplf = 70
+        Kplf = 50
         Kplb = 50
-        minrotsleep = 0.1
         if object_x_center >= (frame_x_size / 5) * 3:
-            error = ((object_x_center - (frame_x_size / 5 * 3)) / (frame_x_size - ((frame_x_size / 5) * 3)))
-            error = math.fabs(error)
             self.rotation_in_place('r', 100)
 
         elif object_x_center <= (frame_x_size / 5) * 2:
-            error = (((frame_x_size / 5 * 2) - object_x_center) / ((frame_x_size / 5) * 2))
-            error = math.fabs(error)
             self.rotation_in_place('l', 100)
 
         elif ((float)(ymax - ymin)) / frame_y_size > 0.75:
-            error = ((((float)(ymax - ymin)) / frame_y_size) - 0.75) / (1 - 0.75)
             errorX = ((frame_x_size / 2) - object_x_center) / (frame_x_size / 2)
             self.linear_drive("b", 100, errorX, Kplb)
 
         elif ((float)(ymax - ymin)) / frame_y_size < 0.65:
-            error = (0.65 - (((float)(ymax - ymin)) / frame_y_size)) / 0.65
             errorX = ((frame_x_size / 2) - object_x_center) / (frame_x_size / 2)
             self.linear_drive("f", 100, errorX, Kplf)
         else:
