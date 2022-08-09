@@ -40,7 +40,7 @@ class Robot:
         GPIO.output(A_in4, GPIO.LOW)
         self.A_pwmB = GPIO.PWM(A_enb, self.frequency)
         self.A_pwmB.start(0)
-        ####################################################
+        ######################################################
         GPIO.setmode(GPIO.BCM)
         GPIO.setup(B_in1, GPIO.OUT)
         GPIO.setup(B_in2, GPIO.OUT)
