@@ -150,6 +150,37 @@ class Robot:
                 else:
                     self.B_pwmA.ChangeDutyCycle(speed + (error * Kp))
                     self.B_pwmB.ChangeDutyCycle(speed + (error * Kp))
+            
+            elif direction == "right" or direction == "Right" or direction == "r" or direction == "R":
+                GPIO.output(self.A_in1, GPIO.LOW)
+                GPIO.output(self.A_in3, GPIO.LOW)
+                GPIO.output(self.A_in2, GPIO.HIGH)
+                GPIO.output(self.A_in4, GPIO.HIGH)
+                self.A_pwmA.ChangeDutyCycle(speed)
+                self.A_pwmB.ChangeDutyCycle(speed)
+
+                GPIO.output(self.B_in2, GPIO.LOW)
+                GPIO.output(self.B_in4, GPIO.LOW)
+                GPIO.output(self.B_in1, GPIO.HIGH)
+                GPIO.output(self.B_in3, GPIO.HIGH)
+                self.B_pwmA.ChangeDutyCycle(speed)
+                self.B_pwmB.ChangeDutyCycle(speed)
+
+            elif direction == "left" or direction == "Left" or direction == "l" or direction == "L":
+                GPIO.output(self.A_in2, GPIO.LOW)
+                GPIO.output(self.A_in4, GPIO.LOW)
+                GPIO.output(self.A_in1, GPIO.HIGH)
+                GPIO.output(self.A_in3, GPIO.HIGH)
+                self.A_pwmA.ChangeDutyCycle(speed)
+                self.A_pwmB.ChangeDutyCycle(speed)
+
+                GPIO.output(self.B_in1, GPIO.LOW)
+                GPIO.output(self.B_in3, GPIO.LOW)
+                GPIO.output(self.B_in2, GPIO.HIGH)
+                GPIO.output(self.B_in4, GPIO.HIGH)
+                self.B_pwmA.ChangeDutyCycle(speed)
+                self.B_pwmB.ChangeDutyCycle(speed)
+
 
     def rotation_in_place(self, direction, speed):
         if isinstance(speed, int) and (100 >= speed >= 0):
@@ -206,14 +237,18 @@ class Robot:
 
 
       ##Example use##
-# robot=Robot(21,20,16,26,19,13,24,18,23,17,22,27)
-# time.sleep(5)
-# robot.linear_drive("f",80,0,0)
-# time.sleep(4)
-# robot.linear_drive("b",80,0,0)
-# time.sleep(4)
-# robot.rotation_in_place("l",100)
-# time.sleep(4)
-# robot.rotation_in_place("r",100)
-# time.sleep(4)
-# robot.stop()
+robot=Robot(21,20,16,26,19,13,24,18,23,17,22,27)
+time.sleep(5)
+robot.linear_drive("f",80,0,0)
+time.sleep(5)
+robot.linear_drive("b",80,0,0)
+time.sleep(5)
+robot.linear_drive("r",80,0,0)
+time.sleep(5)
+robot.linear_drive("l",80,0,0)
+time.sleep(5)
+robot.rotation_in_place("r",100)
+time.sleep(5)
+robot.rotation_in_place("l",100)
+time.sleep(5)
+robot.stop()
