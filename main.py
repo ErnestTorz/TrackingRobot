@@ -8,7 +8,7 @@ import time
 import cv2
 import os
 
-robot = Robot(21, 20, 16, 26, 19, 13)
+robot = Robot(21,20,16,26,19,13,24,18,23,17,22,27)
 
 
 class VideoStream:

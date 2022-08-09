@@ -1,221 +1,63 @@
-<<<<<<< HEAD
-from concurrent.futures import thread
-from contextlib import nullcontext
-import RPi.GPIO as GPIO
-from cv2 import rotate
 import time
-import math
-from threading import Thread
-
-from numpy import var
-
-class Robot:
-    def __init__(self, ena, in1, in2, in3, in4, enb):
-        self.ena =ena
-        self.in1=in1
-        self.in2=in2
-        self.in3=in3
-        self.in4=in4
-        self.enb=enb
-        self.frequency=500
-        self.pom_thread=0
-
-        GPIO.setmode(GPIO.BCM)
-        GPIO.setup(in1,GPIO.OUT)
-        GPIO.setup(in2,GPIO.OUT)
-        GPIO.setup(ena,GPIO.OUT)
-        GPIO.output(in1,GPIO.LOW)
-        GPIO.output(in2,GPIO.LOW)
-        self.pwmA=GPIO.PWM(ena,self.frequency)
-        self.pwmA.start(0)
-
-        GPIO.setmode(GPIO.BCM)
-        GPIO.setup(in3,GPIO.OUT)
-        GPIO.setup(in4,GPIO.OUT)
-        GPIO.setup(enb,GPIO.OUT)
-        GPIO.output(in3,GPIO.LOW)
-        GPIO.output(in4,GPIO.LOW)
-        self.pwmB=GPIO.PWM(enb,self.frequency)
-        self.pwmB.start(0)
-    
-    def __del__(self):
-        GPIO.cleanup()
-    
-    def run(self,frame_x_size,frame_y_size, object_x_center,object_y_center,xmin,xmax,ymin,ymax):
-        if(self.pom_thread==0):
-            self.thread= Thread(target=self.robot_controler,args=(frame_x_size,frame_y_size, object_x_center,object_y_center,xmin,xmax,ymin,ymax)).start()
-            self.pom_thread=1
-        if(((Thread)(self.thread)).is_alive()==False):
-             self.thread= Thread(target=self.robot_controler,args=(frame_x_size,frame_y_size, object_x_center,object_y_center,xmin,xmax,ymin,ymax)).start()
-
-    def stop (self):
-        self.pwmA.ChangeDutyCycle(0)
-        self.pwmB.ChangeDutyCycle(0)
-        GPIO.output(self.in1,GPIO.LOW)
-        GPIO.output(self.in2,GPIO.LOW)
-        GPIO.output(self.in3,GPIO.LOW)
-        GPIO.output(self.in4,GPIO.LOW)
-
-    def linear_drive(self, direction, speed,error,Kp):
-        minspeed=70.00
-        maxspeed=100.00
-        if isinstance(speed,int) and (100 >= speed >= 0) :
-            if direction=="forward" or direction=="Forward" or direction=="f" or direction=="F" :
-                GPIO.output(self.in2,GPIO.LOW)
-                GPIO.output(self.in3,GPIO.LOW)
-                GPIO.output(self.in1,GPIO.HIGH)
-                GPIO.output(self.in4,GPIO.HIGH)
-                if (speed+(error*Kp))>=maxspeed:
-                    self.pwmA.ChangeDutyCycle(maxspeed)
-                elif(speed+(error*Kp))<=minspeed:
-                    self.pwmA.ChangeDutyCycle(minspeed)
-                else:
-                    print(speed+(error*Kp))
-                    self.pwmA.ChangeDutyCycle(speed+(error*Kp))
-
-                if(speed-(error*Kp)) >maxspeed:
-                    self.pwmB.ChangeDutyCycle(maxspeed)
-                elif(speed-(error*Kp)) <minspeed:
-                    self.pwmB.ChangeDutyCycle(minspeed)
-                else:
-                    self.pwmB.ChangeDutyCycle(speed-(error*Kp))
-            elif direction =="backward" or direction == "Backward" or direction=="b" or direction=="B" :
-                GPIO.output(self.in1,GPIO.LOW)
-                GPIO.output(self.in4,GPIO.LOW)
-                GPIO.output(self.in2,GPIO.HIGH)
-                GPIO.output(self.in3,GPIO.HIGH)
-                # print("MOJA LEWA"+str(speed-(error*Kp)))
-                # print(speed+(error*Kp))
-                if(speed-(error*Kp)) >maxspeed:
-                    self.pwmA.ChangeDutyCycle(maxspeed)
-                elif(speed-(error*Kp)) <minspeed:
-                    self.pwmA.ChangeDutyCycle(minspeed)
-                else:
-                    self.pwmA.ChangeDutyCycle(speed-(error*Kp))
-
-                if(speed+(error*Kp)) >maxspeed:
-                    self.pwmB.ChangeDutyCycle(maxspeed)
-                elif(speed+(error*Kp)) <minspeed:
-                    self.pwmB.ChangeDutyCycle(minspeed)
-                else:
-                    self.pwmB.ChangeDutyCycle(speed+(error*Kp))
-
-    def rotation_in_place(self, direction, speed):
-        if isinstance(speed,int) and (100 >= speed >= 0) :
-            if direction=="left" or direction=="Left" or direction=="l" or direction=="L" :
-                GPIO.output(self.in2,GPIO.LOW)
-                GPIO.output(self.in4,GPIO.LOW)
-                GPIO.output(self.in1,GPIO.HIGH)
-                GPIO.output(self.in3,GPIO.HIGH)
-                self.pwmA.ChangeDutyCycle(speed)
-                self.pwmB.ChangeDutyCycle(speed)
-            elif direction =="right" or direction == "Right" or direction=="r" or direction=="R" :
-                GPIO.output(self.in1,GPIO.LOW)
-                GPIO.output(self.in3,GPIO.LOW)
-                GPIO.output(self.in2,GPIO.HIGH)
-                GPIO.output(self.in4,GPIO.HIGH)
-                self.pwmA.ChangeDutyCycle(speed)
-                self.pwmB.ChangeDutyCycle(speed)
-    
-    def robot_controler(self,frame_x_size,frame_y_size, object_x_center,object_y_center,xmin,xmax,ymin,ymax):
-        Kpr=1.5
-        Kplf=70
-        Kplb=50
-        #Kplft=10
-       #Kplbt=7
-        minrotsleep=0.1
-        if(object_x_center>= (frame_x_size/5)*3):
-            error=((object_x_center-(frame_x_size/5*3))/(frame_x_size-((frame_x_size/5)*3)))
-            error=math.fabs(error)
-            self.rotation_in_place('l',100)
-            # if(Kpr*error)<minrotsleep:
-            #     time.sleep(minrotsleep)
-            # else:
-            #     time.sleep(Kpr*error)
-            # self.stop()
-
-        elif(object_x_center <= (frame_x_size/5)*2):
-            error=(((frame_x_size/5*2)- object_x_center)/((frame_x_size/5)*2))
-            error=math.fabs(error)
-            self.rotation_in_place('r',100)
-            # if(Kpr*error)<minrotsleep:
-            #     time.sleep(minrotsleep)
-            # else:
-            #     time.sleep(Kpr*error)
-            # self.stop()
-
-        elif(((float)(ymax-ymin))/frame_y_size>0.75):
-            error=((((float)(ymax-ymin))/frame_y_size)-0.75)/(1-0.75)
-            errorX=((frame_x_size/2)-object_x_center)/(frame_x_size/2)
-            self.linear_drive("b",90,errorX,Kplb)
-            #time.sleep(Kplbt*error)
-           # self.stop()
-
-        elif(((float)(ymax-ymin))/frame_y_size<0.65):
-            error=(0.65-(((float)(ymax-ymin))/frame_y_size))/0.65
-            errorX=((frame_x_size/2)-object_x_center)/(frame_x_size/2)
-            self.linear_drive("f",90,errorX,Kplf)
-            #time.sleep(Kplft*error)
-            #self.stop()
-        else:
-            self.stop()
-        
-        
-
-
-
-#       ##Example use##
-# robot=Robot(21,20,16,26,19,13)
-# time.sleep(5)
-# robot.linear_drive("f",80,0,0)
-# time.sleep(4)
-# robot.linear_drive("b",80,0,0)
-# time.sleep(4)
-# robot.rotation_in_place("l",100)
-# time.sleep(10)
-# robot.rotation_in_place("r",100)
-# time.sleep(10)
-
-    
-
-        
-
-    
-
-=======
 from threading import Thread
 import RPi.GPIO as GPIO
 import math
 
 
 class Robot:
-    def __init__(self, ena, in1, in2, in3, in4, enb):
-        self.ena = ena
-        self.in1 = in1
-        self.in2 = in2
-        self.in3 = in3
-        self.in4 = in4
-        self.enb = enb
+    def __init__(self, A_ena, A_in1, A_in2, A_in3, A_in4, A_enb, B_ena, B_in1, B_in2, B_in3, B_in4, B_enb):
+        self.A_ena = A_ena
+        self.A_in1 = A_in1
+        self.A_in2 = A_in2
+        self.A_in3 = A_in3
+        self.A_in4 = A_in4
+        self.A_enb = A_enb
+       
+        self.B_ena = B_ena
+        self.B_in1 = B_in1
+        self.B_in2 = B_in2
+        self.B_in3 = B_in3
+        self.B_in4 = B_in4
+        self.B_enb = B_enb
+       
         self.frequency = 500
         self.pom_thread = 0
 
         GPIO.setmode(GPIO.BCM)
-        GPIO.setup(in1, GPIO.OUT)
-        GPIO.setup(in2, GPIO.OUT)
-        GPIO.setup(ena, GPIO.OUT)
-        GPIO.output(in1, GPIO.LOW)
-        GPIO.output(in2, GPIO.LOW)
-        self.pwmA = GPIO.PWM(ena, self.frequency)
-        self.pwmA.start(0)
+        GPIO.setup(A_in1, GPIO.OUT)
+        GPIO.setup(A_in2, GPIO.OUT)
+        GPIO.setup(A_ena, GPIO.OUT)
+        GPIO.output(A_in1, GPIO.LOW)
+        GPIO.output(A_in2, GPIO.LOW)
+        self.A_pwmA = GPIO.PWM(A_ena, self.frequency)
+        self.A_pwmA.start(0)
 
         GPIO.setmode(GPIO.BCM)
-        GPIO.setup(in3, GPIO.OUT)
-        GPIO.setup(in4, GPIO.OUT)
-        GPIO.setup(enb, GPIO.OUT)
-        GPIO.output(in3, GPIO.LOW)
-        GPIO.output(in4, GPIO.LOW)
-        self.pwmB = GPIO.PWM(enb, self.frequency)
-        self.pwmB.start(0)
+        GPIO.setup(A_in3, GPIO.OUT)
+        GPIO.setup(A_in4, GPIO.OUT)
+        GPIO.setup(A_enb, GPIO.OUT)
+        GPIO.output(A_in3, GPIO.LOW)
+        GPIO.output(A_in4, GPIO.LOW)
+        self.A_pwmB = GPIO.PWM(A_enb, self.frequency)
+        self.A_pwmB.start(0)
+        ####################################################
+        GPIO.setmode(GPIO.BCM)
+        GPIO.setup(B_in1, GPIO.OUT)
+        GPIO.setup(B_in2, GPIO.OUT)
+        GPIO.setup(B_ena, GPIO.OUT)
+        GPIO.output(B_in1, GPIO.LOW)
+        GPIO.output(B_in2, GPIO.LOW)
+        self.B_pwmA = GPIO.PWM(B_ena, self.frequency)
+        self.B_pwmA.start(0)
+
+        GPIO.setmode(GPIO.BCM)
+        GPIO.setup(B_in3, GPIO.OUT)
+        GPIO.setup(B_in4, GPIO.OUT)
+        GPIO.setup(B_enb, GPIO.OUT)
+        GPIO.output(B_in3, GPIO.LOW)
+        GPIO.output(B_in4, GPIO.LOW)
+        self.B_pwmB = GPIO.PWM(B_enb, self.frequency)
+        self.B_pwmB.start(0)
     
     def __del__(self):
         GPIO.cleanup()
@@ -228,71 +70,118 @@ class Robot:
              self.thread = Thread(target=self.robot_controler, args=(frame_x_size, frame_y_size, object_x_center, object_y_center, xmin, xmax, ymin, ymax)).start()
 
     def stop (self):
-        self.pwmA.ChangeDutyCycle(0)
-        self.pwmB.ChangeDutyCycle(0)
-        GPIO.output(self.in1, GPIO.LOW)
-        GPIO.output(self.in2, GPIO.LOW)
-        GPIO.output(self.in3, GPIO.LOW)
-        GPIO.output(self.in4, GPIO.LOW)
+        self.A_pwmA.ChangeDutyCycle(0)
+        self.A_pwmB.ChangeDutyCycle(0)
+        GPIO.output(self.A_in1, GPIO.LOW)
+        GPIO.output(self.A_in2, GPIO.LOW)
+        GPIO.output(self.A_in3, GPIO.LOW)
+        GPIO.output(self.A_in4, GPIO.LOW)
+
+        self.B_pwmA.ChangeDutyCycle(0)
+        self.B_pwmB.ChangeDutyCycle(0)
+        GPIO.output(self.B_in1, GPIO.LOW)
+        GPIO.output(self.B_in2, GPIO.LOW)
+        GPIO.output(self.B_in3, GPIO.LOW)
+        GPIO.output(self.B_in4, GPIO.LOW)
 
     def linear_drive(self, direction, speed, error, Kp):
         minspeed = 70.00
         maxspeed = 100.00
         if isinstance(speed, int) and (100 >= speed >= 0):
             if direction == "forward" or direction == "Forward" or direction == "f" or direction == "F":
-                GPIO.output(self.in2, GPIO.LOW)
-                GPIO.output(self.in3, GPIO.LOW)
-                GPIO.output(self.in1, GPIO.HIGH)
-                GPIO.output(self.in4, GPIO.HIGH)
+                GPIO.output(self.A_in2, GPIO.LOW)
+                GPIO.output(self.A_in3, GPIO.LOW)
+                GPIO.output(self.A_in1, GPIO.HIGH)
+                GPIO.output(self.A_in4, GPIO.HIGH)
+
+                GPIO.output(self.B_in1, GPIO.LOW)
+                GPIO.output(self.B_in4, GPIO.LOW)
+                GPIO.output(self.B_in2, GPIO.HIGH)
+                GPIO.output(self.B_in3, GPIO.HIGH)
+
                 if (speed + (error * Kp)) >= maxspeed:
-                    self.pwmA.ChangeDutyCycle(maxspeed)
+                    self.A_pwmA.ChangeDutyCycle(maxspeed)
+                    self.A_pwmB.ChangeDutyCycle(maxspeed)
                 elif(speed + (error * Kp)) <= minspeed:
-                    self.pwmA.ChangeDutyCycle(minspeed)
+                    self.A_pwmA.ChangeDutyCycle(minspeed)
+                    self.A_pwmB.ChangeDutyCycle(minspeed)
                 else:
                     print(speed + (error * Kp))
-                    self.pwmA.ChangeDutyCycle(speed + (error * Kp))
+                    self.A_pwmA.ChangeDutyCycle(speed + (error * Kp))
+                    self.A_pwmB.ChangeDutyCycle(speed + (error * Kp))
 
                 if(speed - (error * Kp)) > maxspeed:
-                    self.pwmB.ChangeDutyCycle(maxspeed)
+                    self.B_pwmA.ChangeDutyCycle(maxspeed)
+                    self.B_pwmB.ChangeDutyCycle(maxspeed)
                 elif(speed - (error * Kp)) < minspeed:
-                    self.pwmB.ChangeDutyCycle(minspeed)
+                    self.B_pwmA.ChangeDutyCycle(minspeed)
+                    self.B_pwmB.ChangeDutyCycle(minspeed)
                 else:
-                    self.pwmB.ChangeDutyCycle(speed - (error * Kp))
+                    self.B_pwmA.ChangeDutyCycle(speed - (error * Kp))
+                    self.B_pwmB.ChangeDutyCycle(speed - (error * Kp))
+
             elif direction == "backward" or direction == "Backward" or direction == "b" or direction == "B":
-                GPIO.output(self.in1, GPIO.LOW)
-                GPIO.output(self.in4, GPIO.LOW)
-                GPIO.output(self.in2, GPIO.HIGH)
-                GPIO.output(self.in3, GPIO.HIGH)
+                GPIO.output(self.A_in1, GPIO.LOW)
+                GPIO.output(self.A_in4, GPIO.LOW)
+                GPIO.output(self.A_in2, GPIO.HIGH)
+                GPIO.output(self.A_in3, GPIO.HIGH)
+
+                GPIO.output(self.B_in2, GPIO.LOW)
+                GPIO.output(self.B_in3, GPIO.LOW)
+                GPIO.output(self.B_in1, GPIO.HIGH)
+                GPIO.output(self.B_in4, GPIO.HIGH)
+
                 if(speed - (error * Kp)) > maxspeed:
-                    self.pwmA.ChangeDutyCycle(maxspeed)
+                    self.A_pwmA.ChangeDutyCycle(maxspeed)
+                    self.A_pwmB.ChangeDutyCycle(maxspeed)
                 elif(speed - (error * Kp)) < minspeed:
-                    self.pwmA.ChangeDutyCycle(minspeed)
+                    self.A_pwmA.ChangeDutyCycle(minspeed)
+                    self.A_pwmB.ChangeDutyCycle(minspeed)
                 else:
-                    self.pwmA.ChangeDutyCycle(speed - (error * Kp))
+                    self.A_pwmA.ChangeDutyCycle(speed - (error * Kp))
+                    self.A_pwmB.ChangeDutyCycle(speed - (error * Kp))
 
                 if(speed + (error * Kp)) > maxspeed:
-                    self.pwmB.ChangeDutyCycle(maxspeed)
+                    self.B_pwmA.ChangeDutyCycle(maxspeed)
+                    self.B_pwmB.ChangeDutyCycle(maxspeed)
                 elif(speed + (error * Kp)) < minspeed:
-                    self.pwmB.ChangeDutyCycle(minspeed)
+                    self.B_pwmA.ChangeDutyCycle(minspeed)
+                    self.B_pwmB.ChangeDutyCycle(minspeed)
                 else:
-                    self.pwmB.ChangeDutyCycle(speed + (error * Kp))
+                    self.B_pwmA.ChangeDutyCycle(speed + (error * Kp))
+                    self.B_pwmB.ChangeDutyCycle(speed + (error * Kp))
 
     def rotation_in_place(self, direction, speed):
         if isinstance(speed, int) and (100 >= speed >= 0):
             if direction == "left" or direction == "Left" or direction == "l" or direction == "L":
-                GPIO.output(self.in2, GPIO.LOW)
-                GPIO.output(self.in4, GPIO.LOW)
-                GPIO.output(self.in1, GPIO.HIGH)
-                GPIO.output(self.in3, GPIO.HIGH)
-                self.pwmA.ChangeDutyCycle(speed)
-                self.pwmB.ChangeDutyCycle(speed)
+                GPIO.output(self.A_in1, GPIO.LOW)
+                GPIO.output(self.A_in4, GPIO.LOW)
+                GPIO.output(self.A_in2, GPIO.HIGH)
+                GPIO.output(self.A_in3, GPIO.HIGH)
+                self.A_pwmA.ChangeDutyCycle(speed)
+                self.A_pwmB.ChangeDutyCycle(speed)
+
+                GPIO.output(self.B_in1, GPIO.LOW)
+                GPIO.output(self.B_in4, GPIO.LOW)
+                GPIO.output(self.B_in2, GPIO.HIGH)
+                GPIO.output(self.B_in3, GPIO.HIGH)
+                self.B_pwmA.ChangeDutyCycle(speed)
+                self.B_pwmB.ChangeDutyCycle(speed)
+
             elif direction == "right" or direction == "Right" or direction == "r" or direction == "R":
-                GPIO.output(self.in1, GPIO.LOW)
-                GPIO.output(self.in3, GPIO.LOW)
-                GPIO.output(self.in2, GPIO.HIGH)
-                GPIO.output(self.in4, GPIO.HIGH)
-                self.pwmA.ChangeDutyCycle(speed)
-                self.pwmB.ChangeDutyCycle(speed)
+                GPIO.output(self.A_in2, GPIO.LOW)
+                GPIO.output(self.A_in3, GPIO.LOW)
+                GPIO.output(self.A_in1, GPIO.HIGH)
+                GPIO.output(self.A_in4, GPIO.HIGH)
+                self.A_pwmA.ChangeDutyCycle(speed)
+                self.A_pwmB.ChangeDutyCycle(speed)
+
+                GPIO.output(self.B_in2, GPIO.LOW)
+                GPIO.output(self.B_in3, GPIO.LOW)
+                GPIO.output(self.B_in1, GPIO.HIGH)
+                GPIO.output(self.B_in4, GPIO.HIGH)
+                self.B_pwmA.ChangeDutyCycle(speed)
+                self.B_pwmB.ChangeDutyCycle(speed)
     
     def robot_controler(self, frame_x_size, frame_y_size, object_x_center, object_y_center, xmin, xmax, ymin, ymax):
         Kplf = 50
@@ -312,4 +201,19 @@ class Robot:
             self.linear_drive("f", 100, errorX, Kplf)
         else:
             self.stop()
->>>>>>> 2cab72179bda8847b45729424b1c5e955b50d665
+        
+
+
+
+      ##Example use##
+# robot=Robot(21,20,16,26,19,13,24,18,23,17,22,27)
+# time.sleep(5)
+# robot.linear_drive("f",80,0,0)
+# time.sleep(4)
+# robot.linear_drive("b",80,0,0)
+# time.sleep(4)
+# robot.rotation_in_place("l",100)
+# time.sleep(4)
+# robot.rotation_in_place("r",100)
+# time.sleep(4)
+# robot.stop()
