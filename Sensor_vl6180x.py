@@ -4,11 +4,12 @@
 # Demo of reading the range and lux from the VL6180x distance sensor and
 # printing it every second.
 
+from itertools import count
 import time
 
 import board
 import busio
-
+import copy
 import RPi.GPIO as GPIO
 
 
@@ -21,6 +22,8 @@ import adafruit_vl53l0x
 #Down: 11| 5
 class Range_Sensors:
     def __init__(self, Left_up, Right_up, Left_down, Right_down):
+        self.lock=False
+
         self.Left_up    = Left_up 
         self.Right_up   = Right_up
         self.Left_down  = Left_down
@@ -36,6 +39,8 @@ class Range_Sensors:
         GPIO.output(Right_up,GPIO.LOW)
         GPIO.output(Right_down,GPIO.LOW)
 
+        time.sleep(0.5)
+
         self.i2c = busio.I2C(board.SCL, board.SDA)
         
         error=0
@@ -45,6 +50,7 @@ class Range_Sensors:
             time.sleep(0.1)
             self.sensor1 = adafruit_vl53l0x.VL53L0X(self.i2c)     
             self.sensor1.set_address(0x32)
+            self.sensor1.measurement_timing_budget=50000
             self.sensor1.start_continuous()
 
             error=2
@@ -52,6 +58,7 @@ class Range_Sensors:
             time.sleep(0.1)
             self.sensor2 = adafruit_vl53l0x.VL53L0X(self.i2c)
             self.sensor2.set_address(0x34)
+            self.sensor2.measurement_timing_budget=50000
             self.sensor2.start_continuous()
 
             error=3
@@ -59,6 +66,7 @@ class Range_Sensors:
             time.sleep(0.1)
             self.sensor3 = adafruit_vl53l0x.VL53L0X(self.i2c)
             self.sensor3.set_address(0x36)
+            self.sensor3.measurement_timing_budget=50000
             self.sensor3.start_continuous()
 
             error=4
@@ -66,6 +74,7 @@ class Range_Sensors:
             time.sleep(0.1)
             self.sensor4 = adafruit_vl53l0x.VL53L0X(self.i2c)
             self.sensor4.set_address(0x38)
+            self.sensor4.measurement_timing_budget=50000
             self.sensor4.start_continuous()
         except:
             print("Init sensor error: "+str(error))
@@ -76,22 +85,27 @@ class Range_Sensors:
         
     def reading (self):
         array=[]
-
-        array.append(int(self.sensor1.range))
-        time.sleep(0.01)
-        array.append(int(self.sensor2.range))
-        time.sleep(0.01)
-        array.append(int(self.sensor3.range))
-        time.sleep(0.01)
-        array.append(int(self.sensor4.range))
+        self.lock=True
+        array.append(int(copy.copy(self.sensor1.range)))
        
-        print(array)
-        return array
+        array.append(int(copy.copy(self.sensor2.range)))
+     
+        array.append(int(copy.copy(self.sensor3.range)))
+    
+        array.append(int(copy.copy(self.sensor4.range)))
+        self.lock=False
+        # print(array)
+        return copy.copy(array)
 
 
 
 
 # Sensors=Range_Sensors(1,6,5,12)
+# detection_distance=140
+# count_1=0
+# count_2=0
+# count_3=0
+# count_4=0
 # while True:
 
 #     readings=Sensors.reading()
@@ -99,5 +113,35 @@ class Range_Sensors:
 #     print("------------------------------------")
 #     print(str(readings[2])+"||"+str(readings[3]))
 #     print("\n \n")
+#     if(readings[3]>70 and readings[3]<= detection_distance and (readings[2]<70 or readings[2]> detection_distance)):
+#         count_1+=1
+#         if(count_1>4):
+#             print("3\n")
+#             print(readings)
+#     else:
+#         count_1=0
+#     if(readings[2]>70 and readings[2]<= detection_distance and (readings[3]<70 or readings[3]> detection_distance)):
+#         count_2+=1
+        
+#         if(count_2>4):
+#             print("2\n")
+#             print(readings)
+#     else:
+#             count_2=0
+#     if(readings[0]>70 and readings[0]<= detection_distance and (readings[1]<70 or readings[1]> detection_distance)):
+#         count_3=count_3+1
+#         print (count_3)
+#         if(count_3>4):
+#              print("0\n")
+#              print(readings)
+#     else:
+#              count_3=0
+#     if(readings[1]>70 and readings[1]<= detection_distance and (readings[0]<70 or readings[0]> detection_distance)):
+#         count_4+=1
+#         if(count_4>4):
+#             print("1\n")
+#             print(readings)
+#     else:
+#              count_4=0
 
-#     # time.sleep(0.70)
+#     print("---")

@@ -1,5 +1,6 @@
 from distutils.log import error
 from itertools import count
+from multiprocessing.connection import wait
 import time
 from threading import Thread
 from turtle import right
@@ -75,88 +76,147 @@ class Robot:
         self.B_pwmB.start(0)
 
 
+        self.flaga_detect_1=0
+        self.flaga_detect_2=0
+        self.flaga_detect_3=0
+        self.flaga_detect_4=0
+
+        self.counter_1=0
+        self.counter_2=0
+        self.counter_3=0
+        self.counter_4=0
+        self.counter_5=0
+
+
         self.Sensors=Sensor_vl6180x.Range_Sensors(1,6,5,12)
         self.readings= self.Sensors.reading()
+
+
     
     def __del__(self):
         GPIO.cleanup()
     
     def run(self, frame_x_size, frame_y_size, object_x_center, object_y_center, xmin, xmax, ymin, ymax):
-
-        if self.pom_thread == 0:
-            if(self.counter_track>10):
-                self.readings= self.Sensors.reading()
-                self.counter_track=0
-            else:
-                self.counter_track+=1
+        if (self.pom_thread == 0):
+            if self.Sensors.lock==False:
+                # if(self.Sensors.sensor1.data_ready and self.Sensors.sensor2.data_ready and self.Sensors.sensor3.data_ready and self.Sensors.sensor4.data_ready ):
+                   self.readings= self.Sensors.reading()
             self.thread = Thread(target=self.robot_controler, args=(frame_x_size, frame_y_size, object_x_center, object_y_center, xmin, xmax, ymin, ymax)).start()
             self.pom_thread = 1
-        if ((Thread)(self.thread)).is_alive() == False:
-            if(self.counter_track>10):
-                self.readings= self.Sensors.reading()
-                self.counter_track=0
-            else:
-                self.counter_track+=1
-            self.thread = Thread(target=self.robot_controler, args=(frame_x_size, frame_y_size, object_x_center, object_y_center, xmin, xmax, ymin, ymax)).start()
+
+        if self.pom_thread==1:
+            if ((Thread)(self.thread)).is_alive() == False:
+                if self.Sensors.lock==False:
+                    # if(self.Sensors.sensor1.data_ready and self.Sensors.sensor2.data_ready and self.Sensors.sensor3.data_ready and self.Sensors.sensor4.data_ready ):
+                    self.readings= self.Sensors.reading()
+                
+                self.thread = Thread(target=self.robot_controler, args=(frame_x_size, frame_y_size, object_x_center, object_y_center, xmin, xmax, ymin, ymax)).start()
     
     def  obstacle_detection(self):
         self.obstacle_flaga=False
-     
-        # if(self.direction==FORWARD):
-        #     if(readings[0]>10 and readings[0]<=150 and (readings[1]<10 or readings[1]>150)):
-        #         start=time.time()
-        #         self.stop()
-        #         while(start-time.time()<3  and readings[0]>10 and readings[0]<150):
-        #             readings= self.Sensors.reading()
-        #         while (readings[0]>10 and readings[0]<150  and (readings[1]<10 or readings[1]>150 )):
-        #             self.linear_drive("r",90,0,0)
-        #             readings= self.Sensors.reading()
-        #         self.stop()
+        detection_distance=150
+    
+            
+        if(self.direction==FORWARD and self.readings[0]>70 and self.readings[0]<= detection_distance and (self.readings[1]<70 or self.readings[1]> detection_distance)):
+                self.counter_1+=1
+                if(self.counter_1>4):
+                    self.obstacle_flaga=True
+                    if(self.flaga_detect_1==0):
+                        self.start1=time.time()
+                        self.stop_without_record()
+                        self.flaga_detect_1=1
+                    # if(time.time()-self.start1<1.5  and self.readings[0]>70 and self.readings[0]< detection_distance):
+                        # print("1: "+str(time.time()-self.start1))
+                    if (time.time()-self.start1>=1   and self.readings[0]>70 and self.readings[0]< detection_distance  and (self.readings[1]<70 or self.readings[1]> detection_distance )):
+                        self.linear_drive("r",90,0,0)
+        else:
+                if(self.flaga_detect_1==1):
+                    self.stop_without_record()
+                    # time.sleep(0.5)
+                self.flaga_detect_1=0
+                self.start1=0
+                self.counter_1=0
 
-        # if(self.direction==FORWARD):
-        #     if(readings[1]>10 and readings[1]<=150 and (readings[0]<10 or readings[0]>150)):
-        #         start=time.time()
-        #         self.stop()
-        #         while(start-time.time()<3 and readings[1]>10 and readings[1]<150  ):
-        #             readings= self.Sensors.reading()
-        #         while (readings[1]>10 and readings[1]<150 and (readings[0]<10 or readings[0]>150)):
-        #             self.linear_drive("l",90,0,0)
-        #             readings= self.Sensors.reading()
-        #         self.stop()
 
-        # if(self.direction==BACKWARD):
-        #     if(readings[2]>10 and readings[2]<=150 and readings[3]>150):
-        #         start=time.time()
-        #         self.stop()
-        #         while(start-time.time()<5 and readings[2]<150  ):
-        #             readings= self.Sensors.reading()
-        #         while (readings[2]<150 and readings[3]>150):
-        #             self.linear_drive("r",90,0,0)
-        #             readings= self.Sensors.reading()
-        #         self.stop()
+       
+            
+        if(self.direction==FORWARD and self.readings[1]>70 and self.readings[1]<= detection_distance and (self.readings[0]<70 or self.readings[0]> detection_distance)):
+                self.counter_2+=1
+                if(self.counter_2>4):
+                    self.obstacle_flaga=True
+                    if(self.flaga_detect_2==0):
+                        self.start2=time.time()
+                        self.stop_without_record()
+                        self.flaga_detect_2=1
+                    # if(time.time()-self.start2<0.75    and self.readings[1]>70 and self.readings[1]< detection_distance):
+                        # print("2: "+str(time.time()-self.start2))
+                    if (time.time()-self.start2>=1   and self.readings[1]>70 and self.readings[1]< detection_distance  and (self.readings[0]<70 or self.readings[0]> detection_distance )):
+                        self.linear_drive("r",90,0,0)
+        else:
+                if(self.flaga_detect_2==1):
+                    self.stop_without_record()
+                    # time.sleep(0.5)
+                self.flaga_detect_2=0
+                self.start2=0
+                self.counter_2=0
+
+
+
+        if(self.direction==BACKWARD and self.readings[2]>70 and self.readings[2]<= detection_distance and (self.readings[3]<70 or self.readings[3]> detection_distance)):
+                self.counter_3+=1
+                if(self.counter_3>4):
+                    self.obstacle_flaga=True
+                    if(self.flaga_detect_3==0):
+                         self.start3=time.time()
+                         self.stop_without_record()
+                         self.flaga_detect_3=1
+                    # if(time.time()<0.75 -self.start3 and self.readings[2]>70 and self.readings[2]< detection_distance  ):
+                        #    print("3: "+str(time.time()-self.start3))
+                    if (time.time()-self.start3>=1   and self.readings[2]>70 and self.readings[2]< detection_distance  and (self.readings[3]<70 or self.readings[3]> detection_distance )):
+                            self.linear_drive("r",90,0,0)
+        else:
+                if(self.flaga_detect_3==1):
+                    self.stop_without_record()
+                    # time.sleep(0.5)
+                self.flaga_detect_3=0
+                self.start3=0
+                self.counter_3=0
         
-        # if(self.direction==BACKWARD):
-        #     if(readings[3]>10 and readings[3]<=150 and readings[2]>150):
-        #         start=time.time()
-        #         self.stop()
-        #         while(start-time.time()<5 and readings[3]<150  ):
-        #             readings= self.Sensors.reading()
-        #         while (readings[3]<150 and readings[2]>150):
-        #             self.linear_drive("l",90,0,0)
-        #             readings= self.Sensors.reading()
-        #         self.stop()
+
         
-        if(self.direction==BACKWARD):
-            if(self.readings[2]>10 and self.readings[2]<=150 and self.readings[3]>10 and self.readings[3]<=150):
-                self.stop()
-                print("stop")
+        if(self.direction==BACKWARD and self.readings[3]>70 and self.readings[3]<= detection_distance and (self.readings[2]<70 or self.readings[2]> detection_distance)):
+                self.counter_4+=1
+                if(self.counter_4>4):
+                    self.obstacle_flaga=True
+                    if(self.flaga_detect_4==0): 
+                        self.start4=time.time()
+                        self.stop_without_record()
+                        self.flaga_detect_4=1
+                    # if(time.time()-self.start4<0.75  and self.readings[3]>70 and self.readings[3]< detection_distance  ):
+                        # print("4: "+str(time.time()-self.start4))
+                        # print(self.readings)
+                    if (time.time()-self.start4>=1  and self.readings[3]>70 and self.readings[3]< detection_distance  and (self.readings[2]<70 or self.readings[2]> detection_distance )):
+                         self.linear_drive("l",90,0,0)
+        else:
+                if(self.flaga_detect_4==1):
+                    self.stop_without_record()
+                    # time.sleep(0.5)
+                self.flaga_detect_4=0
+                self.start4=0
+                self.counter_4=0
+        
+
+        if(self.direction==BACKWARD and self.readings[2]>70 and self.readings[2]<= detection_distance and self.readings[3]>70 and self.readings[3]<= detection_distance):
+            self.counter_5+=1
+            if(self.counter_5>4):
+                self.stop_without_record()
                 self.obstacle_flaga=True
+        else:
+            self.counter_5=0
                 
             
         
-                
-                
-    def stop (self):
+    def stop_without_record (self):
         self.A_pwmA.ChangeDutyCycle(0)
         self.A_pwmB.ChangeDutyCycle(0)
         GPIO.output(self.A_in1, GPIO.LOW)
@@ -169,49 +229,70 @@ class Robot:
         GPIO.output(self.B_in1, GPIO.LOW)
         GPIO.output(self.B_in2, GPIO.LOW)
         GPIO.output(self.B_in3, GPIO.LOW)
-        GPIO.output(self.B_in4, GPIO.LOW)
+        GPIO.output(self.B_in4, GPIO.LOW)                
+                
+    def stop (self):
+        self.obstacle_detection()
+        if(self.obstacle_flaga==False):
+            self.direction=STOP
+            self.A_pwmA.ChangeDutyCycle(0)
+            self.A_pwmB.ChangeDutyCycle(0)
+            GPIO.output(self.A_in1, GPIO.LOW)
+            GPIO.output(self.A_in2, GPIO.LOW)
+            GPIO.output(self.A_in3, GPIO.LOW)
+            GPIO.output(self.A_in4, GPIO.LOW)
+
+            self.B_pwmA.ChangeDutyCycle(0)
+            self.B_pwmB.ChangeDutyCycle(0)
+            GPIO.output(self.B_in1, GPIO.LOW)
+            GPIO.output(self.B_in2, GPIO.LOW)
+            GPIO.output(self.B_in3, GPIO.LOW)
+            GPIO.output(self.B_in4, GPIO.LOW)
 
     def linear_drive(self, direction, speed, error, Kp):
         minspeed = 48.00
         maxspeed = 100
         if isinstance(speed, int) and (100 >= speed >= 0):
             if direction == "forward" or direction == "Forward" or direction == "f" or direction == "F":
-                self.direction=FORWARD
-                # self.obstacle_detection()
-                GPIO.output(self.A_in2, GPIO.LOW)
-                GPIO.output(self.A_in3, GPIO.LOW)
-                GPIO.output(self.A_in1, GPIO.HIGH)
-                GPIO.output(self.A_in4, GPIO.HIGH)
+                    self.obstacle_detection()
+                   
+                    if(self.obstacle_flaga==False):
+                        self.direction=FORWARD
+                        GPIO.output(self.A_in2, GPIO.LOW)
+                        GPIO.output(self.A_in3, GPIO.LOW)
+                        GPIO.output(self.A_in1, GPIO.HIGH)
+                        GPIO.output(self.A_in4, GPIO.HIGH)
 
-                GPIO.output(self.B_in1, GPIO.LOW)
-                GPIO.output(self.B_in4, GPIO.LOW)
-                GPIO.output(self.B_in2, GPIO.HIGH)
-                GPIO.output(self.B_in3, GPIO.HIGH)
+                        GPIO.output(self.B_in1, GPIO.LOW)
+                        GPIO.output(self.B_in4, GPIO.LOW)
+                        GPIO.output(self.B_in2, GPIO.HIGH)
+                        GPIO.output(self.B_in3, GPIO.HIGH)
 
-                if (speed + (error * Kp)) >= maxspeed:
-                    self.B_pwmA.ChangeDutyCycle(maxspeed)
-                    self.B_pwmB.ChangeDutyCycle(maxspeed)
-                elif(speed + (error * Kp)) <= minspeed:
-                    self.B_pwmA.ChangeDutyCycle(minspeed)
-                    self.B_pwmB.ChangeDutyCycle(minspeed)
-                else:
-                    self.B_pwmA.ChangeDutyCycle(speed + (error * Kp))
-                    self.B_pwmB.ChangeDutyCycle(speed + (error * Kp))
+                        if (speed + (error * Kp)) >= maxspeed:
+                            self.B_pwmA.ChangeDutyCycle(maxspeed)
+                            self.B_pwmB.ChangeDutyCycle(maxspeed)
+                        elif(speed + (error * Kp)) <= minspeed:
+                            self.B_pwmA.ChangeDutyCycle(minspeed)
+                            self.B_pwmB.ChangeDutyCycle(minspeed)
+                        else:
+                            self.B_pwmA.ChangeDutyCycle(speed + (error * Kp))
+                            self.B_pwmB.ChangeDutyCycle(speed + (error * Kp))
 
-                if(speed - (error * Kp)) > maxspeed:
-                    self.A_pwmA.ChangeDutyCycle(maxspeed)
-                    self.A_pwmB.ChangeDutyCycle(maxspeed)
-                elif(speed - (error * Kp)) < minspeed:
-                    self.A_pwmA.ChangeDutyCycle(minspeed)
-                    self.A_pwmB.ChangeDutyCycle(minspeed)
-                else:
-                    self.A_pwmA.ChangeDutyCycle(speed - (error * Kp))
-                    self.A_pwmB.ChangeDutyCycle(speed - (error * Kp))
+                        if(speed - (error * Kp)) > maxspeed:
+                            self.A_pwmA.ChangeDutyCycle(maxspeed)
+                            self.A_pwmB.ChangeDutyCycle(maxspeed)
+                        elif(speed - (error * Kp)) < minspeed:
+                            self.A_pwmA.ChangeDutyCycle(minspeed)
+                            self.A_pwmB.ChangeDutyCycle(minspeed)
+                        else:
+                            self.A_pwmA.ChangeDutyCycle(speed - (error * Kp))
+                            self.A_pwmB.ChangeDutyCycle(speed - (error * Kp))
 
             elif direction == "backward" or direction == "Backward" or direction == "b" or direction == "B":
-                self.direction=BACKWARD
+    
                 self.obstacle_detection()
                 if(self.obstacle_flaga==False):
+                    self.direction=BACKWARD
                     GPIO.output(self.A_in1, GPIO.LOW)
                     GPIO.output(self.A_in4, GPIO.LOW)
                     GPIO.output(self.A_in2, GPIO.HIGH)
@@ -243,71 +324,78 @@ class Robot:
                         self.A_pwmB.ChangeDutyCycle(speed + (error * Kp))
             
             elif direction == "right" or direction == "Right" or direction == "r" or direction == "R":
-                self.direction=RIGHT
-                GPIO.output(self.A_in1, GPIO.LOW)
-                GPIO.output(self.A_in3, GPIO.LOW)
-                GPIO.output(self.A_in2, GPIO.HIGH)
-                GPIO.output(self.A_in4, GPIO.HIGH)
-                self.A_pwmA.ChangeDutyCycle(speed)
-                self.A_pwmB.ChangeDutyCycle(speed)
+                #self.direction=RIGHT
+                    GPIO.output(self.A_in1, GPIO.LOW)
+                    GPIO.output(self.A_in3, GPIO.LOW)
+                    GPIO.output(self.A_in2, GPIO.HIGH)
+                    GPIO.output(self.A_in4, GPIO.HIGH)
+                    self.A_pwmA.ChangeDutyCycle(speed)
+                    self.A_pwmB.ChangeDutyCycle(speed)
 
-                GPIO.output(self.B_in2, GPIO.LOW)
-                GPIO.output(self.B_in4, GPIO.LOW)
-                GPIO.output(self.B_in1, GPIO.HIGH)
-                GPIO.output(self.B_in3, GPIO.HIGH)
-                self.B_pwmA.ChangeDutyCycle(speed)
-                self.B_pwmB.ChangeDutyCycle(speed)
+                    GPIO.output(self.B_in2, GPIO.LOW)
+                    GPIO.output(self.B_in4, GPIO.LOW)
+                    GPIO.output(self.B_in1, GPIO.HIGH)
+                    GPIO.output(self.B_in3, GPIO.HIGH)
+                    self.B_pwmA.ChangeDutyCycle(speed)
+                    self.B_pwmB.ChangeDutyCycle(speed)
 
             elif direction == "left" or direction == "Left" or direction == "l" or direction == "L":
-                self.direction=LEFT
-                GPIO.output(self.A_in2, GPIO.LOW)
-                GPIO.output(self.A_in4, GPIO.LOW)
-                GPIO.output(self.A_in1, GPIO.HIGH)
-                GPIO.output(self.A_in3, GPIO.HIGH)
-                self.A_pwmA.ChangeDutyCycle(speed)
-                self.A_pwmB.ChangeDutyCycle(speed)
+               
+                    GPIO.output(self.A_in2, GPIO.LOW)
+                    GPIO.output(self.A_in4, GPIO.LOW)
+                    GPIO.output(self.A_in1, GPIO.HIGH)
+                    GPIO.output(self.A_in3, GPIO.HIGH)
+                    self.A_pwmA.ChangeDutyCycle(speed)
+                    self.A_pwmB.ChangeDutyCycle(speed)
 
-                GPIO.output(self.B_in1, GPIO.LOW)
-                GPIO.output(self.B_in3, GPIO.LOW)
-                GPIO.output(self.B_in2, GPIO.HIGH)
-                GPIO.output(self.B_in4, GPIO.HIGH)
-                self.B_pwmA.ChangeDutyCycle(speed)
-                self.B_pwmB.ChangeDutyCycle(speed)
+                    GPIO.output(self.B_in1, GPIO.LOW)
+                    GPIO.output(self.B_in3, GPIO.LOW)
+                    GPIO.output(self.B_in2, GPIO.HIGH)
+                    GPIO.output(self.B_in4, GPIO.HIGH)
+                    self.B_pwmA.ChangeDutyCycle(speed)
+                    self.B_pwmB.ChangeDutyCycle(speed)
 
 
     def rotation_in_place(self, direction, speed):
         if isinstance(speed, int) and (100 >= speed >= 0):
             if direction == "left" or direction == "Left" or direction == "l" or direction == "L":
-                self.direction=L_ROTATION
-                GPIO.output(self.A_in1, GPIO.LOW)
-                GPIO.output(self.A_in4, GPIO.LOW)
-                GPIO.output(self.A_in2, GPIO.HIGH)
-                GPIO.output(self.A_in3, GPIO.HIGH)
-                self.A_pwmA.ChangeDutyCycle(speed)
-                self.A_pwmB.ChangeDutyCycle(speed)
+                self.obstacle_detection()
+                if(self.obstacle_flaga==False):
+                    self.direction=L_ROTATION
+                    GPIO.output(self.A_in1, GPIO.LOW)
+                    GPIO.output(self.A_in4, GPIO.LOW)
+                    GPIO.output(self.A_in2, GPIO.HIGH)
+                    GPIO.output(self.A_in3, GPIO.HIGH)
+                    self.A_pwmA.ChangeDutyCycle(speed)
+                    self.A_pwmB.ChangeDutyCycle(speed)
 
-                GPIO.output(self.B_in1, GPIO.LOW)
-                GPIO.output(self.B_in4, GPIO.LOW)
-                GPIO.output(self.B_in2, GPIO.HIGH)
-                GPIO.output(self.B_in3, GPIO.HIGH)
-                self.B_pwmA.ChangeDutyCycle(speed)
-                self.B_pwmB.ChangeDutyCycle(speed)
+                    GPIO.output(self.B_in1, GPIO.LOW)
+                    GPIO.output(self.B_in4, GPIO.LOW)
+                    GPIO.output(self.B_in2, GPIO.HIGH)
+                    GPIO.output(self.B_in3, GPIO.HIGH)
+                    self.B_pwmA.ChangeDutyCycle(speed)
+                    self.B_pwmB.ChangeDutyCycle(speed)
 
             elif direction == "right" or direction == "Right" or direction == "r" or direction == "R":
-                self.direction=R_ROTATION
-                GPIO.output(self.A_in2, GPIO.LOW)
-                GPIO.output(self.A_in3, GPIO.LOW)
-                GPIO.output(self.A_in1, GPIO.HIGH)
-                GPIO.output(self.A_in4, GPIO.HIGH)
-                self.A_pwmA.ChangeDutyCycle(speed)
-                self.A_pwmB.ChangeDutyCycle(speed)
+                self.obstacle_detection()
+                if(self.obstacle_flaga==False):
+                    self.direction=R_ROTATION
+                    GPIO.output(self.A_in2, GPIO.LOW)
+                    GPIO.output(self.A_in3, GPIO.LOW)
+                    GPIO.output(self.A_in1, GPIO.HIGH)
+                    GPIO.output(self.A_in4, GPIO.HIGH)
+                    self.A_pwmA.ChangeDutyCycle(speed)
+                    self.A_pwmB.ChangeDutyCycle(speed)
 
-                GPIO.output(self.B_in2, GPIO.LOW)
-                GPIO.output(self.B_in3, GPIO.LOW)
-                GPIO.output(self.B_in1, GPIO.HIGH)
-                GPIO.output(self.B_in4, GPIO.HIGH)
-                self.B_pwmA.ChangeDutyCycle(speed)
-                self.B_pwmB.ChangeDutyCycle(speed)
+                    GPIO.output(self.B_in2, GPIO.LOW)
+                    GPIO.output(self.B_in3, GPIO.LOW)
+                    GPIO.output(self.B_in1, GPIO.HIGH)
+                    GPIO.output(self.B_in4, GPIO.HIGH)
+                    self.B_pwmA.ChangeDutyCycle(speed)
+                    self.B_pwmB.ChangeDutyCycle(speed)
+
+                # if(self.flaga_detect_4==0 and self.flaga_detect_3 ==0):
+                #     time.sleep(0.5)
     
     def robot_controler(self, frame_x_size, frame_y_size, object_x_center, object_y_center, xmin, xmax, ymin, ymax):
         ##LINIOWA JAZDA##
