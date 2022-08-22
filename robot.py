@@ -6,7 +6,7 @@ from threading import Thread
 from turtle import right
 import RPi.GPIO as GPIO
 import math
-import Sensor_vl6180x
+import Sensor_VL53L0X
 
 STOP=0
 FORWARD=1
@@ -88,7 +88,7 @@ class Robot:
         self.counter_5=0
 
         while(True):
-         self.Sensors=Sensor_vl6180x.Range_Sensors(1,6,5,12)
+         self.Sensors=Sensor_VL53L0X.Range_Sensors(1,6,5,12)
          if self.Sensors.Error == False :
             break
         
