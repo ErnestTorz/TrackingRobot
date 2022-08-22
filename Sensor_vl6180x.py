@@ -28,6 +28,7 @@ class Range_Sensors:
         self.Right_up   = Right_up
         self.Left_down  = Left_down
         self.Right_down = Right_down
+        GPIO.setmode(GPIO.BCM)
         
         GPIO.setup(Left_up,GPIO.OUT)
         GPIO.setup(Left_down,GPIO.OUT)
@@ -113,35 +114,35 @@ class Range_Sensors:
 #     print("------------------------------------")
 #     print(str(readings[2])+"||"+str(readings[3]))
 #     print("\n \n")
-#     if(readings[3]>70 and readings[3]<= detection_distance and (readings[2]<70 or readings[2]> detection_distance)):
-#         count_1+=1
-#         if(count_1>4):
-#             print("3\n")
-#             print(readings)
-#     else:
-#         count_1=0
-#     if(readings[2]>70 and readings[2]<= detection_distance and (readings[3]<70 or readings[3]> detection_distance)):
-#         count_2+=1
+    # if(readings[3]>70 and readings[3]<= detection_distance and (readings[2]<70 or readings[2]> detection_distance)):
+    #     count_1+=1
+    #     if(count_1>4):
+    #         print("3\n")
+    #         print(readings)
+    # else:
+    #     count_1=0
+    # if(readings[2]>70 and readings[2]<= detection_distance and (readings[3]<70 or readings[3]> detection_distance)):
+    #     count_2+=1
         
-#         if(count_2>4):
-#             print("2\n")
-#             print(readings)
-#     else:
-#             count_2=0
-#     if(readings[0]>70 and readings[0]<= detection_distance and (readings[1]<70 or readings[1]> detection_distance)):
-#         count_3=count_3+1
-#         print (count_3)
-#         if(count_3>4):
-#              print("0\n")
-#              print(readings)
-#     else:
-#              count_3=0
-#     if(readings[1]>70 and readings[1]<= detection_distance and (readings[0]<70 or readings[0]> detection_distance)):
-#         count_4+=1
-#         if(count_4>4):
-#             print("1\n")
-#             print(readings)
-#     else:
-#              count_4=0
+    #     if(count_2>4):
+    #         print("2\n")
+    #         print(readings)
+    # else:
+    #         count_2=0
+    # if(readings[0]>70 and readings[0]<= detection_distance and (readings[1]<70 or readings[1]> detection_distance)):
+    #     count_3=count_3+1
+    #     print (count_3)
+    #     if(count_3>4):
+    #          print("0\n")
+    #          print(readings)
+    # else:
+    #          count_3=0
+    # if(readings[1]>70 and readings[1]<= detection_distance and (readings[0]<70 or readings[0]> detection_distance)):
+    #     count_4+=1
+    #     if(count_4>4):
+    #         print("1\n")
+    #         print(readings)
+    # else:
+    #          count_4=0
 
-#     print("---")
+    # print("---")

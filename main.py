@@ -7,6 +7,7 @@ import argparse
 import time
 import cv2
 import os
+import math
 
 robot = Robot(21,20,16,26,19,13,24,18,23,17,22,27)
 
@@ -157,7 +158,7 @@ time.sleep(1)
 detection_list = []
 object_to_follow = object(imH / 2, imW / 2, 0, imW, 0, imH)
 next_object = object(0, 0, 0, 0, 0, 0)
-min_distance = 9999999999
+min_distance = math.inf
 counter = 0
 Kp = 0.5
 
@@ -223,8 +224,8 @@ while True:
             min_distance = object_to_follow.distance(i)
     detection_list.clear()
     
-    if min_distance != 9999999999:
-        min_distance = 9999999999
+    if min_distance != math.inf:
+        min_distance = math.inf
         counter = 0
         object_to_follow = next_object
         cv2.circle(frame, (object_to_follow.xcenter, object_to_follow.ycenter), 5, (0, 0, 255), thickness=-1)
