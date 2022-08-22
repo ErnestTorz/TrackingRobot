@@ -87,8 +87,11 @@ class Robot:
         self.counter_4=0
         self.counter_5=0
 
-
-        self.Sensors=Sensor_vl6180x.Range_Sensors(1,6,5,12)
+        while(True):
+         self.Sensors=Sensor_vl6180x.Range_Sensors(1,6,5,12)
+         if self.Sensors.Error == False :
+            break
+        
         self.readings= self.Sensors.reading()
 
 
@@ -114,105 +117,118 @@ class Robot:
     
     def  obstacle_detection(self):
         self.obstacle_flaga=False
-        detection_distance=150
+        detection_distance=165
+        min_distance=70
+        counter_boundary=4
     
-            
-        if(self.direction==FORWARD and self.readings[0]>70 and self.readings[0]<= detection_distance and (self.readings[1]<70 or self.readings[1]> detection_distance)):
+        if(self.Sensors.Error==False):   
+          if(self.direction==FORWARD and self.readings[0]>min_distance and self.readings[0]<= detection_distance and (self.readings[1]<min_distance or self.readings[1]> detection_distance)):
                 self.counter_1+=1
-                if(self.counter_1>4):
+                if(self.counter_1>counter_boundary):
                     self.obstacle_flaga=True
-                    if(self.flaga_detect_1==0):
-                        self.start1=time.time()
-                        self.stop_without_record()
-                        self.flaga_detect_1=1
-                    # if(time.time()-self.start1<1.5  and self.readings[0]>70 and self.readings[0]< detection_distance):
+                    # if(self.flaga_detect_1==0):
+                        # self.start1=time.time()
+                        # self.stop_without_record()
+                    self.flaga_detect_1=1
+                    # if(time.time()-self.start1<1.5  and self.readings[0]>min_distance and self.readings[0]< detection_distance):
                         # print("1: "+str(time.time()-self.start1))
-                    if (time.time()-self.start1>=1   and self.readings[0]>70 and self.readings[0]< detection_distance  and (self.readings[1]<70 or self.readings[1]> detection_distance )):
-                        self.linear_drive("r",90,0,0)
-        else:
-                if(self.flaga_detect_1==1):
+                    # if (time.time()-self.start1>=1   and self.readings[0]>min_distance and self.readings[0]< detection_distance  and (self.readings[1]<min_distance or self.readings[1]> detection_distance )):
+                    self.linear_drive("r",90,0,0)
+                    print("F_R")
+          else:
+                if(self.counter_1>counter_boundary):
                     self.stop_without_record()
                     # time.sleep(0.5)
-                self.flaga_detect_1=0
-                self.start1=0
+                # self.flaga_detect_1=0
+                # self.start1=0
                 self.counter_1=0
 
 
        
-            
-        if(self.direction==FORWARD and self.readings[1]>70 and self.readings[1]<= detection_distance and (self.readings[0]<70 or self.readings[0]> detection_distance)):
+           
+          if(self.direction==FORWARD and self.readings[1]>min_distance and self.readings[1]<= detection_distance and (self.readings[0]<min_distance or self.readings[0]> detection_distance)):
                 self.counter_2+=1
-                if(self.counter_2>4):
+                if(self.counter_2>counter_boundary):
                     self.obstacle_flaga=True
-                    if(self.flaga_detect_2==0):
-                        self.start2=time.time()
-                        self.stop_without_record()
-                        self.flaga_detect_2=1
-                    # if(time.time()-self.start2<0.75    and self.readings[1]>70 and self.readings[1]< detection_distance):
+                    # if(self.flaga_detect_2==0):
+                        # self.start2=time.time()
+                        # self.stop_without_record()
+                        # self.flaga_detect_2=1
+                    # if(time.time()-self.start2<0.75    and self.readings[1]>min_distance and self.readings[1]< detection_distance):
                         # print("2: "+str(time.time()-self.start2))
-                    if (time.time()-self.start2>=1   and self.readings[1]>70 and self.readings[1]< detection_distance  and (self.readings[0]<70 or self.readings[0]> detection_distance )):
-                        self.linear_drive("r",90,0,0)
-        else:
-                if(self.flaga_detect_2==1):
+                    # if (time.time()-self.start2>=1   and self.readings[1]>min_distance and self.readings[1]< detection_distance  and (self.readings[0]<min_distance or self.readings[0]> detection_distance )):
+                    self.linear_drive("l",90,0,0)
+                    print("F_L")
+          else:
+                if(self.counter_2>counter_boundary):
                     self.stop_without_record()
                     # time.sleep(0.5)
-                self.flaga_detect_2=0
-                self.start2=0
+                # self.flaga_detect_2=0
+                # self.start2=0
                 self.counter_2=0
 
 
-
-        if(self.direction==BACKWARD and self.readings[2]>70 and self.readings[2]<= detection_distance and (self.readings[3]<70 or self.readings[3]> detection_distance)):
+         
+          if(self.direction==BACKWARD and self.readings[2]>min_distance and self.readings[2]<= detection_distance and (self.readings[3]<min_distance or self.readings[3]> detection_distance)):
                 self.counter_3+=1
-                if(self.counter_3>4):
+                if(self.counter_3>counter_boundary):
                     self.obstacle_flaga=True
-                    if(self.flaga_detect_3==0):
-                         self.start3=time.time()
-                         self.stop_without_record()
-                         self.flaga_detect_3=1
-                    # if(time.time()<0.75 -self.start3 and self.readings[2]>70 and self.readings[2]< detection_distance  ):
+                    # if(self.flaga_detect_3==0):
+                        #  self.start3=time.time()
+                        #  self.stop_without_record()
+                        #  self.flaga_detect_3=1
+                    # if(time.time()<0.75 -self.start3 and self.readings[2]>min_distance and self.readings[2]< detection_distance  ):
                         #    print("3: "+str(time.time()-self.start3))
-                    if (time.time()-self.start3>=1   and self.readings[2]>70 and self.readings[2]< detection_distance  and (self.readings[3]<70 or self.readings[3]> detection_distance )):
-                            self.linear_drive("r",90,0,0)
-        else:
-                if(self.flaga_detect_3==1):
+                    # if (time.time()-self.start3>=1   and self.readings[2]>min_distance and self.readings[2]< detection_distance  and (self.readings[3]<min_distance or self.readings[3]> detection_distance )):
+                    self.linear_drive("r",90,0,0)
+                    print("B_R")
+          else:
+                if(self.counter_3>counter_boundary):
                     self.stop_without_record()
                     # time.sleep(0.5)
-                self.flaga_detect_3=0
-                self.start3=0
+                # self.flaga_detect_3=0
+                # self.start3=0
                 self.counter_3=0
         
 
         
-        if(self.direction==BACKWARD and self.readings[3]>70 and self.readings[3]<= detection_distance and (self.readings[2]<70 or self.readings[2]> detection_distance)):
+          if(self.direction==BACKWARD and self.readings[3]>min_distance and self.readings[3]<= detection_distance and (self.readings[2]<min_distance or self.readings[2]> detection_distance)):
                 self.counter_4+=1
-                if(self.counter_4>4):
+                if(self.counter_4>counter_boundary):
                     self.obstacle_flaga=True
-                    if(self.flaga_detect_4==0): 
-                        self.start4=time.time()
-                        self.stop_without_record()
-                        self.flaga_detect_4=1
-                    # if(time.time()-self.start4<0.75  and self.readings[3]>70 and self.readings[3]< detection_distance  ):
+                    # if(self.flaga_detect_4==0): 
+                        # self.start4=time.time()
+                        # self.stop_without_record()
+                        # self.flaga_detect_4=1
+                    # if(time.time()-self.start4<0.75  and self.readings[3]>min_distance and self.readings[3]< detection_distance  ):
                         # print("4: "+str(time.time()-self.start4))
                         # print(self.readings)
-                    if (time.time()-self.start4>=1  and self.readings[3]>70 and self.readings[3]< detection_distance  and (self.readings[2]<70 or self.readings[2]> detection_distance )):
-                         self.linear_drive("l",90,0,0)
-        else:
-                if(self.flaga_detect_4==1):
+                   
+                    self.linear_drive("l",90,0,0)
+                    print("B_L")
+          else:
+                if(self.counter_4>counter_boundary):
                     self.stop_without_record()
                     # time.sleep(0.5)
-                self.flaga_detect_4=0
-                self.start4=0
+                # self.flaga_detect_4=0
+                # self.start4=0
                 self.counter_4=0
         
-
-        if(self.direction==BACKWARD and self.readings[2]>70 and self.readings[2]<= detection_distance and self.readings[3]>70 and self.readings[3]<= detection_distance):
+         
+          if(self.direction==BACKWARD and self.readings[2]>min_distance and self.readings[2]<= detection_distance and self.readings[3]>min_distance and self.readings[3]<= detection_distance):
             self.counter_5+=1
-            if(self.counter_5>4):
+            if(self.counter_5>counter_boundary):
                 self.stop_without_record()
                 self.obstacle_flaga=True
-        else:
+                print("B_S")
+          else:
             self.counter_5=0
+
+        else:
+            self.obstacle_flaga=True
+            self.stop_without_record()
+            
+
                 
             
         
@@ -446,7 +462,7 @@ class Robot:
 
 
 
-      #Example use##
+     # Example use
 # robot=Robot(21,20,16,26,19,13,24,18,23,17,22,27)
 # time.sleep(5)
 # robot.linear_drive("f",100,0,0)

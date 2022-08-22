@@ -7,6 +7,7 @@ import argparse
 import time
 import cv2
 import os
+import math
 
 robot = Robot(21,20,16,26,19,13,24,18,23,17,22,27)
 
@@ -157,7 +158,7 @@ time.sleep(1)
 detection_list = []
 object_to_follow = object(imH / 2, imW / 2, 0, imW, 0, imH)
 next_object = object(0, 0, 0, 0, 0, 0)
-min_distance = 9999999999
+min_distance = math.inf
 counter = 0
 Kp = 0.5
 
@@ -201,7 +202,7 @@ while True:
             
             cv2.rectangle(frame, (xmin, ymin), (xmax, ymax), (255, 255, 0), 2)
 
-            # Draw label
+            ## Draw label
             object_name = labels[int(classes[i])]  # Look up object name from "labels" array using class index
             label = '%s: %d%%' % (object_name, int(scores[i] * 100))  # Example: 'person: 72%'
             labelSize, baseLine = cv2.getTextSize(label, cv2.FONT_HERSHEY_SIMPLEX, 0.7, 2)  # Get font size
@@ -223,8 +224,8 @@ while True:
             min_distance = object_to_follow.distance(i)
     detection_list.clear()
     
-    if min_distance != 9999999999:
-        min_distance = 9999999999
+    if min_distance != math.inf:
+        min_distance = math.inf
         counter = 0
         object_to_follow = next_object
         cv2.circle(frame, (object_to_follow.xcenter, object_to_follow.ycenter), 5, (0, 0, 255), thickness=-1)
