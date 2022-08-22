@@ -5,12 +5,14 @@
 # printing it every second.
 
 from itertools import count
+from pickle import TRUE
 import time
 
 import board
 import busio
 import copy
 import RPi.GPIO as GPIO
+import math
 
 
 import adafruit_vl53l0x
@@ -22,6 +24,8 @@ import adafruit_vl53l0x
 #Down: 11| 5
 class Range_Sensors:
     def __init__(self, Left_up, Right_up, Left_down, Right_down):
+        self.Error=True
+        
         self.lock=False
 
         self.Left_up    = Left_up 
@@ -45,6 +49,7 @@ class Range_Sensors:
         self.i2c = busio.I2C(board.SCL, board.SDA)
         
         error=0
+        
         try:
             error=1
             GPIO.output(Left_up,GPIO.HIGH)
@@ -77,23 +82,37 @@ class Range_Sensors:
             self.sensor4.set_address(0x38)
             self.sensor4.measurement_timing_budget=50000
             self.sensor4.start_continuous()
+            self.Error=False
         except:
             print("Init sensor error: "+str(error))
             GPIO.output(Left_up,GPIO.LOW)
             GPIO.output(Left_down,GPIO.LOW)
             GPIO.output(Right_up,GPIO.LOW)
             GPIO.output(Right_down,GPIO.LOW)
+            self.Error=True
         
     def reading (self):
         array=[]
         self.lock=True
-        array.append(int(copy.copy(self.sensor1.range)))
+        try:
+            array.append(int(copy.copy(self.sensor1.range)))
        
-        array.append(int(copy.copy(self.sensor2.range)))
+            array.append(int(copy.copy(self.sensor2.range)))
      
-        array.append(int(copy.copy(self.sensor3.range)))
+            array.append(int(copy.copy(self.sensor3.range)))
     
-        array.append(int(copy.copy(self.sensor4.range)))
+            array.append(int(copy.copy(self.sensor4.range)))
+            
+            self.Error=False
+        except:
+            self.Error=True
+            print("Read_error")
+            array=[]
+            array.append(0)
+            array.append(0)
+            array.append(0)
+            array.append(0)
+
         self.lock=False
         # print(array)
         return copy.copy(array)

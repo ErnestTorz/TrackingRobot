@@ -87,8 +87,11 @@ class Robot:
         self.counter_4=0
         self.counter_5=0
 
-
-        self.Sensors=Sensor_vl6180x.Range_Sensors(1,6,5,12)
+        while(True):
+         self.Sensors=Sensor_vl6180x.Range_Sensors(1,6,5,12)
+         if self.Sensors.Error == False :
+            break
+        
         self.readings= self.Sensors.reading()
 
 
@@ -118,8 +121,8 @@ class Robot:
         min_distance=70
         counter_boundary=4
     
-           
-        if(self.direction==FORWARD and self.readings[0]>min_distance and self.readings[0]<= detection_distance and (self.readings[1]<min_distance or self.readings[1]> detection_distance)):
+        if(self.Sensors.Error==False):   
+          if(self.direction==FORWARD and self.readings[0]>min_distance and self.readings[0]<= detection_distance and (self.readings[1]<min_distance or self.readings[1]> detection_distance)):
                 self.counter_1+=1
                 if(self.counter_1>counter_boundary):
                     self.obstacle_flaga=True
@@ -132,7 +135,7 @@ class Robot:
                     # if (time.time()-self.start1>=1   and self.readings[0]>min_distance and self.readings[0]< detection_distance  and (self.readings[1]<min_distance or self.readings[1]> detection_distance )):
                     self.linear_drive("r",90,0,0)
                     print("F_R")
-        else:
+          else:
                 if(self.counter_1>counter_boundary):
                     self.stop_without_record()
                     # time.sleep(0.5)
@@ -143,7 +146,7 @@ class Robot:
 
        
            
-        if(self.direction==FORWARD and self.readings[1]>min_distance and self.readings[1]<= detection_distance and (self.readings[0]<min_distance or self.readings[0]> detection_distance)):
+          if(self.direction==FORWARD and self.readings[1]>min_distance and self.readings[1]<= detection_distance and (self.readings[0]<min_distance or self.readings[0]> detection_distance)):
                 self.counter_2+=1
                 if(self.counter_2>counter_boundary):
                     self.obstacle_flaga=True
@@ -156,7 +159,7 @@ class Robot:
                     # if (time.time()-self.start2>=1   and self.readings[1]>min_distance and self.readings[1]< detection_distance  and (self.readings[0]<min_distance or self.readings[0]> detection_distance )):
                     self.linear_drive("l",90,0,0)
                     print("F_L")
-        else:
+          else:
                 if(self.counter_2>counter_boundary):
                     self.stop_without_record()
                     # time.sleep(0.5)
@@ -166,7 +169,7 @@ class Robot:
 
 
          
-        if(self.direction==BACKWARD and self.readings[2]>min_distance and self.readings[2]<= detection_distance and (self.readings[3]<min_distance or self.readings[3]> detection_distance)):
+          if(self.direction==BACKWARD and self.readings[2]>min_distance and self.readings[2]<= detection_distance and (self.readings[3]<min_distance or self.readings[3]> detection_distance)):
                 self.counter_3+=1
                 if(self.counter_3>counter_boundary):
                     self.obstacle_flaga=True
@@ -179,7 +182,7 @@ class Robot:
                     # if (time.time()-self.start3>=1   and self.readings[2]>min_distance and self.readings[2]< detection_distance  and (self.readings[3]<min_distance or self.readings[3]> detection_distance )):
                     self.linear_drive("r",90,0,0)
                     print("B_R")
-        else:
+          else:
                 if(self.counter_3>counter_boundary):
                     self.stop_without_record()
                     # time.sleep(0.5)
@@ -189,7 +192,7 @@ class Robot:
         
 
         
-        if(self.direction==BACKWARD and self.readings[3]>min_distance and self.readings[3]<= detection_distance and (self.readings[2]<min_distance or self.readings[2]> detection_distance)):
+          if(self.direction==BACKWARD and self.readings[3]>min_distance and self.readings[3]<= detection_distance and (self.readings[2]<min_distance or self.readings[2]> detection_distance)):
                 self.counter_4+=1
                 if(self.counter_4>counter_boundary):
                     self.obstacle_flaga=True
@@ -203,7 +206,7 @@ class Robot:
                    
                     self.linear_drive("l",90,0,0)
                     print("B_L")
-        else:
+          else:
                 if(self.counter_4>counter_boundary):
                     self.stop_without_record()
                     # time.sleep(0.5)
@@ -212,14 +215,20 @@ class Robot:
                 self.counter_4=0
         
          
-        if(self.direction==BACKWARD and self.readings[2]>min_distance and self.readings[2]<= detection_distance and self.readings[3]>min_distance and self.readings[3]<= detection_distance):
+          if(self.direction==BACKWARD and self.readings[2]>min_distance and self.readings[2]<= detection_distance and self.readings[3]>min_distance and self.readings[3]<= detection_distance):
             self.counter_5+=1
             if(self.counter_5>counter_boundary):
                 self.stop_without_record()
                 self.obstacle_flaga=True
                 print("B_S")
-        else:
+          else:
             self.counter_5=0
+
+        else:
+            self.obstacle_flaga=True
+            self.stop_without_record()
+            
+
                 
             
         
