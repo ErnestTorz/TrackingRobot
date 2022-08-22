@@ -202,7 +202,7 @@ while True:
             
             cv2.rectangle(frame, (xmin, ymin), (xmax, ymax), (255, 255, 0), 2)
 
-            # Draw label
+            ## Draw label
             object_name = labels[int(classes[i])]  # Look up object name from "labels" array using class index
             label = '%s: %d%%' % (object_name, int(scores[i] * 100))  # Example: 'person: 72%'
             labelSize, baseLine = cv2.getTextSize(label, cv2.FONT_HERSHEY_SIMPLEX, 0.7, 2)  # Get font size
