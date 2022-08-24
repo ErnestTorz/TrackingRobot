@@ -23,6 +23,61 @@ import adafruit_vl53l0x
 #     ------
 #Down: 11| 5
 class Range_Sensors:
+    def Error_handler(self):
+        print("Attempting to reconnect I2C sensors")
+
+        GPIO.output(self.Left_up,GPIO.LOW)
+        GPIO.output(self.Left_down,GPIO.LOW)
+        GPIO.output(self.Right_up,GPIO.LOW)
+        GPIO.output(self.Right_down,GPIO.LOW)
+
+        time.sleep(0.2)
+
+        self.i2c = busio.I2C(board.SCL, board.SDA)
+        
+        error=0
+        
+        try:
+            error=1
+            GPIO.output(self.Left_up,GPIO.HIGH)
+            time.sleep(0.1)
+            self.sensor1 = adafruit_vl53l0x.VL53L0X(self.i2c)     
+            self.sensor1.set_address(0x32)
+            self.sensor1.measurement_timing_budget=50000
+            self.sensor1.start_continuous()
+
+            error=2
+            GPIO.output(self.Right_up,GPIO.HIGH)
+            time.sleep(0.1)
+            self.sensor2 = adafruit_vl53l0x.VL53L0X(self.i2c)
+            self.sensor2.set_address(0x34)
+            self.sensor2.measurement_timing_budget=50000
+            self.sensor2.start_continuous()
+
+            error=3
+            GPIO.output(self.Left_down,GPIO.HIGH)
+            time.sleep(0.1)
+            self.sensor3 = adafruit_vl53l0x.VL53L0X(self.i2c)
+            self.sensor3.set_address(0x36)
+            self.sensor3.measurement_timing_budget=50000
+            self.sensor3.start_continuous()
+
+            error=4
+            GPIO.output(self.Right_down,GPIO.HIGH)
+            time.sleep(0.1)
+            self.sensor4 = adafruit_vl53l0x.VL53L0X(self.i2c)
+            self.sensor4.set_address(0x38)
+            self.sensor4.measurement_timing_budget=50000
+            self.sensor4.start_continuous()
+            
+        except:
+            print("Reconection failed. Sensor error: "+str(error))
+            GPIO.output(self.Left_up,GPIO.LOW)
+            GPIO.output(self.Left_down,GPIO.LOW)
+            GPIO.output(self.Right_up,GPIO.LOW)
+            GPIO.output(self.Right_down,GPIO.LOW)
+            self.Error=True
+
     def __init__(self, Left_up, Right_up, Left_down, Right_down):
         self.Error=True
         
@@ -106,15 +161,16 @@ class Range_Sensors:
             self.Error=False
         except:
             self.Error=True
-            print("Read_error")
+            
+            print("Reading data from sensor error !")
             array=[]
             array.append(0)
             array.append(0)
             array.append(0)
             array.append(0)
+            self.Error_handler()
 
         self.lock=False
-        # print(array)
         return copy.copy(array)
 
 
