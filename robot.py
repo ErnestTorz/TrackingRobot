@@ -414,25 +414,28 @@ class Robot:
                 #     time.sleep(0.5)
     
     def robot_controler(self, frame_x_size, frame_y_size, object_x_center, object_y_center, xmin, xmax, ymin, ymax):
-        ##LINIOWA JAZDA##
-        Kplf = 50
-        Kplb = 50
-        KplRide=35
-        BaseSpeedL=52
-        MAXSPEEDL=85
+        ####LINIOWA JAZDA#####
+        Kplf = 50   #Wzmocnienie jazdy do [przodu], szybkosc korekcji ruchu lewo/prawo
+        Kplb = Kplf #Wzmocnienie jazdy do  [tylu] , szybkosc korekcji ruchu lewo/prawo
+       
+        KplRide=35    #Wzmocnienie do regulowania predkosci im obiekt jest bardziej w skrajnej pozycji tym predkosc bedzie wieksza
+        BaseSpeedL=52 #Bazowa startowa, a zarazem minimalna predkosc
+        MAXSPEEDL=85  #Predkosc maksymalna
 
-        ##ROTACJA###
-        Kpr= 40
-        BaseSpeedR=50
-        MAXSPEEDR=80
+        #####ROTACJA######
+        Kpr= 40       #Wzmocnienie do regulowania predkosci im obiekt jest bardziej w skrajnej pozycji tym predkosc bedzie wieksza
+        BaseSpeedR=50 #Bazowa startowa, a zarazem minimalna predkosc
+        MAXSPEEDR=80  #Predkosc maksymalna
         
+        #Sprawdzenie czy obiekt znajduje sie znacząco na prawo
         if object_x_center >= (frame_x_size / 5) * 3: 
             errorX=(object_x_center-((frame_x_size / 5) * 3))/(frame_x_size-((frame_x_size / 5) * 3))
             if(errorX*Kpr+BaseSpeedR>MAXSPEEDR):
                 self.rotation_in_place('r',MAXSPEEDR)
             else:
                 self.rotation_in_place('r',int(math.floor(errorX*Kpr+BaseSpeedR)))
-
+        
+        #Sprawdzenie czy obiekt znajduje sie znacząco na lewo
         elif object_x_center <= (frame_x_size / 5) * 2:
             errorX=(((frame_x_size / 5) * 2)-object_x_center)/((frame_x_size / 5) * 2)
             if(errorX*Kpr+BaseSpeedR>MAXSPEEDR):
@@ -440,6 +443,7 @@ class Robot:
             else:
                 self.rotation_in_place('l',int(math.floor(errorX*Kpr+BaseSpeedR)))
 
+        #Sprawdzenie czy obiekt znajduje sie znacząco za blisko
         elif ((float)(ymax - ymin)) / frame_y_size > 0.95:
             errorX = ((frame_x_size / 2) - object_x_center) / (frame_x_size / 2)
             errorY=((((float)(ymax - ymin)) / frame_y_size)-0.95)/(1-0.95)
@@ -448,6 +452,7 @@ class Robot:
             else:
                 self.linear_drive("b",int(math.floor(errorY*KplRide+BaseSpeedL)), errorX, Kplb)
 
+        #Sprawdzenie czy obiekt znajduje sie znacząco za dalaeko
         elif ((float)(ymax - ymin)) / frame_y_size < 0.85:
             errorX = ((frame_x_size / 2) - object_x_center) / (frame_x_size / 2)
             errorY=(85-(((float)(ymax - ymin)) / frame_y_size))/(85)
@@ -456,6 +461,7 @@ class Robot:
             else:
                 self.linear_drive("f",int(math.floor(errorY*KplRide+BaseSpeedL)), errorX, Kplf)
        
+       #Robot nie ma potrzeby korekcji pozycji wiec czeka
         else:
             self.stop()
         
