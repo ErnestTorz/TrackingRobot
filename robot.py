@@ -94,11 +94,11 @@ class Robot:
         #     break
         
         # self.readings= self.Sensors.reading()
-
-        self.readings=ADC.reading()
+        self.ADC=ADC()
+        self.readings=self.ADC.reading()
 
         time.sleep(1)
-        self.ADC=ADC()
+        # self.ADC=ADC()
         print("Battery voltage:"+str(self.ADC.voltage()))
 
 
@@ -111,7 +111,7 @@ class Robot:
             # if self.Sensors.lock==False:
                 # if(self.Sensors.sensor1.data_ready and self.Sensors.sensor2.data_ready and self.Sensors.sensor3.data_ready and self.Sensors.sensor4.data_ready ):
                 #  self.readings= self.Sensors.reading()
-            self.readings=ADC.reading()
+            self.readings=self.ADC.reading()
             self.thread = Thread(target=self.robot_controler, args=(frame_x_size, frame_y_size, object_x_center, object_y_center, xmin, xmax, ymin, ymax)).start()
             self.pom_thread = 1
 
@@ -120,7 +120,7 @@ class Robot:
                 # if self.Sensors.lock==False:
                     # if(self.Sensors.sensor1.data_ready and self.Sensors.sensor2.data_ready and self.Sensors.sensor3.data_ready and self.Sensors.sensor4.data_ready ):
                     # self.readings= self.Sensors.reading()
-                self.readings=ADC.reading()
+                self.readings=self.ADC.reading()
                     # print(self.readings)
                 
                 self.thread = Thread(target=self.robot_controler, args=(frame_x_size, frame_y_size, object_x_center, object_y_center, xmin, xmax, ymin, ymax)).start()
@@ -136,13 +136,13 @@ class Robot:
     
         # if(self.Sensors.Error==False):   
         if(self.direction==FORWARD and self.readings[0]>min_distance and self.readings[0]<= detection_distance and (self.readings[1]<min_distance or self.readings[1]> detection_distance)):
-                if self.counter_1 ==0:
-                 self.counter_1+=1
-                #  self.sensor_save_1=copy.copy(self.readings)
+                # if self.counter_1 ==0:
+                #  self.counter_1+=1
+                # #  self.sensor_save_1=copy.copy(self.readings)
 
-                # if (self.readings[0]<=self.sensor_save_1[0]+5 and self.readings[0]>=self.sensor_save_1[0]-5):
-                else:
-                    self.counter_1+=1
+                # # if (self.readings[0]<=self.sensor_save_1[0]+5 and self.readings[0]>=self.sensor_save_1[0]-5):
+                # else:
+                self.counter_1+=1
                 # else:
                 #   self.counter_1=0
 
@@ -169,13 +169,13 @@ class Robot:
        
            
         if(self.direction==FORWARD and self.readings[1]>min_distance and self.readings[1]<= detection_distance and (self.readings[0]<min_distance or self.readings[0]> detection_distance)):
-                if self.counter_2 ==0:
-                 self.counter_2+=1
-                #  self.sensor_save_2=copy.copy(self.readings)
+                # if self.counter_2 ==0:
+                #  self.counter_2+=1
+                # #  self.sensor_save_2=copy.copy(self.readings)
 
-                # if (self.readings[1]<=self.sensor_save_2[1]+5 and self.readings[1]>=self.sensor_save_2[1]-5):
-                else:
-                    self.counter_2+=1
+                # # if (self.readings[1]<=self.sensor_save_2[1]+5 and self.readings[1]>=self.sensor_save_2[1]-5):
+                # else:
+                self.counter_2+=1
                 # else:
                 #   self.counter_2=0
                 if(self.counter_2>counter_boundary):
@@ -494,17 +494,36 @@ class Robot:
        #Robot nie ma potrzeby korekcji pozycji wiec czeka
         else:
             self.stop()
-        
+    
+    def test(self):
+        GPIO.output(self.A_in1, GPIO.LOW)
+        GPIO.output(self.A_in4, GPIO.LOW)
+        GPIO.output(self.A_in2, GPIO.HIGH)
+        GPIO.output(self.A_in3, GPIO.HIGH)
+
+        GPIO.output(self.B_in2, GPIO.LOW)
+        GPIO.output(self.B_in3, GPIO.LOW)
+        GPIO.output(self.B_in1, GPIO.HIGH)
+        GPIO.output(self.B_in4, GPIO.HIGH)
+        # GPIO.output(self.B_in1, GPIO.LOW)
+        # GPIO.output(self.B_in4, GPIO.LOW)
+        # GPIO.output(self.B_in2, GPIO.HIGH)
+        # GPIO.output(self.B_in3, GPIO.HIGH)
+        self.B_pwmB.ChangeDutyCycle(100)
+        self.B_pwmA.ChangeDutyCycle(100)
+        self.A_pwmB.ChangeDutyCycle(100)
+        self.A_pwmA.ChangeDutyCycle(100)
 
 
 
      # #Example use
 # robot=Robot(21,20,16,26,19,13,24,18,23,17,22,27)
+# # time.sleep(5)
+# # robot.linear_drive("f",100,0,0)
+# # time.sleep(5)
 # time.sleep(5)
-# robot.linear_drive("f",100,0,0)
-# time.sleep(5)
-# time.sleep(5)
-# robot.linear_drive("b",100,0,0)
+# # robot.linear_drive("b",100,0,0)
+# robot.test()
 # time.sleep(10)
 # robot.linear_drive("r",100,0,0)
 # time.sleep(5)
