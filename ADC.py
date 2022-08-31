@@ -62,9 +62,9 @@ class ADC:
         return copy.copy(array)
 
 # ports = ADC()
-# border=1.4
+# # border=1.4
 # while True:
-    # print(ports.reading())
+#     print(ports.reading()[0])
     #  print(ports.voltage())
     # time.sleep(0.2)
     # for a in (ports.reading()):

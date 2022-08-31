@@ -2,7 +2,7 @@
 from threading import Thread
 import RPi.GPIO as GPIO
 import math
-import Sensor_VL53L0X
+# import Sensor_VL53L0X
 from ADC import ADC
 import time
 import copy
@@ -130,7 +130,7 @@ class Robot:
         # detection_distance=160
         # min_distance=15
         detection_distance=3.3
-        min_distance=1
+        min_distance=0.7
         counter_boundary=4
     
     
@@ -449,13 +449,13 @@ class Robot:
         Kplb = Kplf #Wzmocnienie jazdy do  [tylu] , szybkosc korekcji ruchu lewo/prawo
        
         KplRide=35    #Wzmocnienie do regulowania predkosci im obiekt jest bardziej w skrajnej pozycji tym predkosc bedzie wieksza
-        BaseSpeedL=52 #Bazowa startowa, a zarazem minimalna predkosc
-        MAXSPEEDL=85  #Predkosc maksymalna
+        BaseSpeedL=65 #Bazowa startowa, a zarazem minimalna predkosc
+        MAXSPEEDL=95  #Predkosc maksymalna
 
         #####ROTACJA######
         Kpr= 40       #Wzmocnienie do regulowania predkosci im obiekt jest bardziej w skrajnej pozycji tym predkosc bedzie wieksza
-        BaseSpeedR=50 #Bazowa startowa, a zarazem minimalna predkosc
-        MAXSPEEDR=80  #Predkosc maksymalna
+        BaseSpeedR=65 #Bazowa startowa, a zarazem minimalna predkosc
+        MAXSPEEDR=90  #Predkosc maksymalna
         
         #Sprawdzenie czy obiekt znajduje sie znacząco na prawo
         if object_x_center >= (frame_x_size / 5) * 3: 
@@ -518,12 +518,12 @@ class Robot:
 
      # #Example use
 # robot=Robot(21,20,16,26,19,13,24,18,23,17,22,27)
-# # time.sleep(5)
-# # robot.linear_drive("f",100,0,0)
-# # time.sleep(5)
 # time.sleep(5)
-# # robot.linear_drive("b",100,0,0)
-# robot.test()
+# robot.linear_drive("f",100,0,0)
+# time.sleep(5)
+# time.sleep(5)
+# robot.linear_drive("b",100,0,0)
+# # robot.test()
 # time.sleep(10)
 # robot.linear_drive("r",100,0,0)
 # time.sleep(5)
