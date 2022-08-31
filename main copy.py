@@ -8,10 +8,9 @@ import time
 import cv2
 import os
 import math
-from hands_detector import Hand_detector
 
 robot = Robot(21,20,16,26,19,13,24,18,23,17,22,27)
-Gesture= Hand_detector()
+
 
 class VideoStream:
     """Camera object that controls video streaming from the Picamera"""
@@ -132,6 +131,7 @@ input_details = interpreter.get_input_details()
 output_details = interpreter.get_output_details()
 height = input_details[0]['shape'][1]
 width = input_details[0]['shape'][2]
+
 floating_model = (input_details[0]['dtype'] == np.float32)
 
 input_mean = 127.5
@@ -159,16 +159,13 @@ detection_list = []
 object_to_follow = object(imH / 2, imW / 2, 0, imW, 0, imH)
 next_object = object(0, 0, 0, 0, 0, 0)
 min_distance = math.inf
-find_flag=False
-timer=-math.inf
-gesture_flag=False
-
+counter = 0
 Kp = 0.5
 
 while True:
     # Start timer (for calculating frame rate)
     t1 = cv2.getTickCount()
-   
+
     # Grab frame from video stream
     frame1 = videostream.read()
 
@@ -177,23 +174,22 @@ while True:
     frame_rgb = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
     frame_resized = cv2.resize(frame_rgb, (width, height))
     input_data = np.expand_dims(frame_resized, axis=0)
-    
-    if((time.time()-timer) < 5):
+
     # Normalize pixel values if using a floating model (i.e. if model is non-quantized)
-     if floating_model:
+    if floating_model:
         input_data = (np.float32(input_data) - input_mean) / input_std
 
     # Perform the actual detection by running the model with the image as input
-     interpreter.set_tensor(input_details[0]['index'], input_data)
-     interpreter.invoke()
+    interpreter.set_tensor(input_details[0]['index'], input_data)
+    interpreter.invoke()
 
     # Retrieve detection results
-     boxes = interpreter.get_tensor(output_details[boxes_idx]['index'])[0]  # Bounding box coordinates of detected objects
-     classes = interpreter.get_tensor(output_details[classes_idx]['index'])[0]  # Class index of detected objects
-     scores = interpreter.get_tensor(output_details[scores_idx]['index'])[0]  # Confidence of detected objects
+    boxes = interpreter.get_tensor(output_details[boxes_idx]['index'])[0]  # Bounding box coordinates of detected objects
+    classes = interpreter.get_tensor(output_details[classes_idx]['index'])[0]  # Class index of detected objects
+    scores = interpreter.get_tensor(output_details[scores_idx]['index'])[0]  # Confidence of detected objects
 
     # Loop over all detections and draw detection box if confidence is above minimum threshold
-     for i in range(len(scores)):
+    for i in range(len(scores)):
         if (scores[i] > min_conf_threshold) and (scores[i] <= 1.0) and (labels[int(classes[i])] =='person' or labels[int(classes[i])] == 'Person'):
 
             # Get bounding box coordinates and draw box
@@ -220,50 +216,32 @@ while True:
             cv2.circle(frame, (xcenter, ycenter), 5, (255, 255, 0), thickness=-1)
             detection_list.append(object(xcenter, ycenter, xmin, xmax, ymin, ymax))
             
-     # Draw framerate in corner of frame
-     #  cv2.putText(frame, 'FPS: {0:.2f}'.format(frame_rate_calc), (30, 50), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 0, 255), 2, cv2.LINE_AA)
-    
-      
-     for i in detection_list:
-        if object_to_follow.distance(i) < min_distance and i.xcenter >= object_to_follow.xmin  and i.xcenter <= object_to_follow.xmax  and i.ycenter >= object_to_follow.ymin and i.ycenter <= object_to_follow.ymax:
+    # Draw framerate in corner of frame
+    cv2.putText(frame, 'FPS: {0:.2f}'.format(frame_rate_calc), (30, 50), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 0, 255), 2, cv2.LINE_AA)
+    for i in detection_list:
+        if object_to_follow.distance(i) < min_distance and i.xcenter >= object_to_follow.xmin - (counter * Kp) and i.xcenter <= object_to_follow.xmax + (counter * Kp) and i.ycenter >= object_to_follow.ymin - (counter * Kp) and i.ycenter <= object_to_follow.ymax + (counter * Kp):
             next_object = i
             min_distance = object_to_follow.distance(i)
-     detection_list.clear()
+    detection_list.clear()
     
-     if min_distance != math.inf:
-        timer=math.inf
-        find_flag=True
+    if min_distance != math.inf:
         min_distance = math.inf
+        counter = 0
         object_to_follow = next_object
         cv2.circle(frame, (object_to_follow.xcenter, object_to_follow.ycenter), 5, (0, 0, 255), thickness=-1)
         robot.run(imW, imH, object_to_follow.xcenter, object_to_follow.ycenter, object_to_follow.xmin, object_to_follow.xmax, object_to_follow.ymin, object_to_follow.ymax)
-     else:
-        if(find_flag==True):
-          timer=time.time()
-        find_flag=False
-        robot.stop()
     else:
-     object_to_follow=object(imH / 2, imW / 2, 0, imW, 0, imH)
-    #  croped=frame_rgb[0:imH,int(imW/5):int(imW*4/5)]
-     frame11 = cv2.resize(frame_rgb, (640, 480))
-     if((Gesture.detect(frame11))==1):
-        timer=math.inf
-        print("JEST!!!")
-     else:
-         print("gesture")
-
+        robot.stop()
     # Press 'q' to quit
 
     # All the results have been drawn on the frame, so it's time to display it.
-   
-    cv2.putText(frame, 'FPS: {0:.2f}'.format(frame_rate_calc), (30, 50), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 0, 255), 2, cv2.LINE_AA)
     cv2.imshow('Object detector', frame)
-    # cv2.imshow('Object detector', frame)
+
     # Calculate framerate
     t2 = cv2.getTickCount()
     time1 = (t2 - t1) / freq
     frame_rate_calc = 1 / time1
-   
+    counter += 1
     if cv2.waitKey(1) == ord('q'):
         break
 
