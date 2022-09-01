@@ -6,6 +6,9 @@ import hands_detector
 from threading import Thread
 import copy
 import time
+import mediapipe
+drawingModule = mediapipe.solutions.drawing_utils
+
 
 hander= hands_detector.Hand_detector()
 
@@ -27,7 +30,10 @@ while True:
            
          #   time.sleep(counter)
            if(counter &2==0):
-            pom=hander.detect(frame1)
+            pom,multi_hand_landmarks=hander.detect(frame1)
+           if(pom!=0):
+            for hand in multi_hand_landmarks:
+              drawingModule.draw_landmarks(frame,hand,hander.handsModule.HAND_CONNECTIONS)
 
            if(pom==1):
                     print("TAK")

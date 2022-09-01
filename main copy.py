@@ -8,6 +8,8 @@ import time
 import cv2
 import os
 import math
+import mediapipe
+drawingModule = mediapipe.solutions.drawing_utils
 
 robot = Robot(21,20,16,26,19,13,24,18,23,17,22,27)
 

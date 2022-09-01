@@ -9,9 +9,13 @@ import cv2
 import os
 import math
 from hands_detector import Hand_detector
+import pygame as audio
+import mediapipe
+drawingModule = mediapipe.solutions.drawing_utils
 
 robot = Robot(21,20,16,26,19,13,24,18,23,17,22,27)
 Gesture= Hand_detector()
+audio.mixer.init(26500)
 
 class VideoStream:
     """Camera object that controls video streaming from the Picamera"""
@@ -161,6 +165,8 @@ next_object = object(0, 0, 0, 0, 0, 0)
 min_distance = math.inf
 find_flag=False
 timer=-math.inf
+timer_zero=math.inf
+delay_timer=-math.inf
 gesture_flag=False
 
 Kp = 0.5
@@ -228,12 +234,13 @@ while True:
             if object_to_follow.distance(i) < min_distance and i.xcenter >= object_to_follow.xmin  and i.xcenter <= object_to_follow.xmax  and i.ycenter >= object_to_follow.ymin and i.ycenter <= object_to_follow.ymax:
                 next_object = i
                 min_distance = object_to_follow.distance(i)
+        
         detection_list.clear()
         
         if min_distance != math.inf:
+            min_distance = math.inf
             timer=math.inf
             find_flag=True
-            min_distance = math.inf
             object_to_follow = next_object
             cv2.circle(frame, (object_to_follow.xcenter, object_to_follow.ycenter), 5, (0, 0, 255), thickness=-1)
             robot.run(imW, imH, object_to_follow.xcenter, object_to_follow.ycenter, object_to_follow.xmin, object_to_follow.xmax, object_to_follow.ymin, object_to_follow.ymax)
@@ -242,27 +249,59 @@ while True:
               timer=time.time()
             find_flag=False
             robot.stop()
-    else:
-     object_to_follow=object(imH / 2, imW / 2, 0, imW, 0, imH)
-     croped=frame_rgb[0:imH,int(imW/5):int(imW*4/5)]
-     if((Gesture.detect(croped))==1):
-        timer=math.inf
-        print("JEST!!!")
-     else:
-         print("gesture")
+        if (robot.direction==0 ):
+            print("stop")
+            if(timer_zero==math.inf):
+                timer_zero=time.time()
+            if(time.time()-timer_zero>5):
+                croped=frame_rgb[object_to_follow.ymin:object_to_follow.ymax , object_to_follow.xmin:object_to_follow.xmax]
+                result,multi_hand_landmarks=Gesture.detect(croped)
+                if(result!=0):
+                    for hand in multi_hand_landmarks:
+                         for landmark in hand.landmark :
+                            landmark.x=((landmark.x*(object_to_follow.xmax-object_to_follow.xmin))+(object_to_follow.xmin))/(imW)
+                            landmark.y=((landmark.y*(object_to_follow.ymax-object_to_follow.ymin))+(object_to_follow.ymin))/(imH)
+                         drawingModule.draw_landmarks(frame,hand,Gesture.handsModule.HAND_CONNECTIONS)
+                if(result==1):
+                    audio.mixer.music.load("./audio/Target_will_no_longer_be_followed.mp3")
+                    audio.mixer.music.play()
+                    timer_zero=math.inf 
+                    timer=-math.inf
+                    delay_timer=time.time()
+        else:
+           timer_zero=math.inf 
 
-    # Press 'q' to quit
+    
+    else:
+     if(time.time()-delay_timer>4.5):
+      croped=frame_rgb[0:imH,int(imW/5):int(imW*4/5)]
+      if (timer != -math.inf):
+        audio.mixer.music.load("./audio/Target_was_lost.mp3")
+        audio.mixer.music.play()
+        object_to_follow=object(imH / 2, imW / 2, 0, imW, 0, imH)
+        timer=-math.inf
+      result,multi_hand_landmarks=Gesture.detect(croped)
+      if(result!=0):
+        for hand in multi_hand_landmarks:
+            for landmark in hand.landmark :
+                landmark.x=(landmark.x*(4/5-1/5))+(1/5)
+            drawingModule.draw_landmarks(frame,hand,Gesture.handsModule.HAND_CONNECTIONS)
+        if(result==1):
+            audio.mixer.music.load("./audio/Target_will_be_followed.mp3")
+            audio.mixer.music.play()
+            timer=math.inf
 
     # All the results have been drawn on the frame, so it's time to display it.
    
     cv2.putText(frame, 'FPS: {0:.2f}'.format(frame_rate_calc), (30, 50), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 0, 255), 2, cv2.LINE_AA)
     cv2.imshow('Object detector', frame)
-    # cv2.imshow('Object detector', frame)
+
     # Calculate framerate
     t2 = cv2.getTickCount()
     time1 = (t2 - t1) / freq
     frame_rate_calc = 1 / time1
    
+    # Press 'q' to quit
     if cv2.waitKey(1) == ord('q'):
         break
 

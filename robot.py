@@ -278,9 +278,9 @@ class Robot:
         GPIO.output(self.B_in4, GPIO.LOW)                
                 
     def stop (self):
+        self.direction=STOP
         self.obstacle_detection()
         if(self.obstacle_flaga==False):
-            self.direction=STOP
             self.A_pwmA.ChangeDutyCycle(0)
             self.A_pwmB.ChangeDutyCycle(0)
             GPIO.output(self.A_in1, GPIO.LOW)
@@ -300,10 +300,11 @@ class Robot:
         maxspeed = 100
         if isinstance(speed, int) and (100 >= speed >= 0):
             if direction == "forward" or direction == "Forward" or direction == "f" or direction == "F":
+                    self.direction=FORWARD
                     self.obstacle_detection()
                    
                     if(self.obstacle_flaga==False):
-                        self.direction=FORWARD
+                        
                         GPIO.output(self.A_in2, GPIO.LOW)
                         GPIO.output(self.A_in3, GPIO.LOW)
                         GPIO.output(self.A_in1, GPIO.HIGH)
@@ -335,7 +336,8 @@ class Robot:
                             self.A_pwmB.ChangeDutyCycle(speed - (error * Kp))
 
             elif direction == "backward" or direction == "Backward" or direction == "b" or direction == "B":
-    
+                
+                self.direction=BACKWARD
                 self.obstacle_detection()
                 if(self.obstacle_flaga==False):
                     self.direction=BACKWARD
@@ -405,9 +407,9 @@ class Robot:
     def rotation_in_place(self, direction, speed):
         if isinstance(speed, int) and (100 >= speed >= 0):
             if direction == "left" or direction == "Left" or direction == "l" or direction == "L":
+                self.direction=L_ROTATION
                 self.obstacle_detection()
                 if(self.obstacle_flaga==False):
-                    self.direction=L_ROTATION
                     GPIO.output(self.A_in1, GPIO.LOW)
                     GPIO.output(self.A_in4, GPIO.LOW)
                     GPIO.output(self.A_in2, GPIO.HIGH)
@@ -423,9 +425,10 @@ class Robot:
                     self.B_pwmB.ChangeDutyCycle(speed)
 
             elif direction == "right" or direction == "Right" or direction == "r" or direction == "R":
+                self.direction=R_ROTATION
                 self.obstacle_detection()
                 if(self.obstacle_flaga==False):
-                    self.direction=R_ROTATION
+                   
                     GPIO.output(self.A_in2, GPIO.LOW)
                     GPIO.output(self.A_in3, GPIO.LOW)
                     GPIO.output(self.A_in1, GPIO.HIGH)
