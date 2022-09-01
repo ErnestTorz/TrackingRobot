@@ -250,7 +250,7 @@ while True:
             find_flag=False
             robot.stop()
         if (robot.direction==0 ):
-            print("stop")
+            
             if(timer_zero==math.inf):
                 timer_zero=time.time()
             if(time.time()-timer_zero>5):
@@ -265,6 +265,7 @@ while True:
                 if(result==1):
                     audio.mixer.music.load("./audio/Target_will_no_longer_be_followed.mp3")
                     audio.mixer.music.play()
+                    object_to_follow=object(imH / 2, imW / 2, 0, imW, 0, imH)
                     timer_zero=math.inf 
                     timer=-math.inf
                     delay_timer=time.time()
