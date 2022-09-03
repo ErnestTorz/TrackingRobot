@@ -50,7 +50,7 @@ class Hand_detector:
                 reference_distance_thumb = (((results.multi_hand_landmarks[0].landmark[4].x - results.multi_hand_landmarks[0].landmark[2].x)**2 + (results.multi_hand_landmarks[0].landmark[4].y - results.multi_hand_landmarks[0].landmark[2].y)**2)**0.5)
                 #Sprawdenie czy czubki kciukw sa przy sobie
                 if((((results.multi_hand_landmarks[0].landmark[8].x - results.multi_hand_landmarks[1].landmark[8].x)**2 + (results.multi_hand_landmarks[0].landmark[8].y - results.multi_hand_landmarks[1].landmark[8].y)**2)**0.5)<=reference_distance_thumb):
-                      print("1")
+                      # print("1")
                   
                   # reference_distance_wide=(((results.multi_hand_landmarks[0].landmark[0].x - results.multi_hand_landmarks[0].landmark[9].x)**2 + (results.multi_hand_landmarks[0].landmark[0].y - results.multi_hand_landmarks[0].landmark[9].y)**2)**0.5)
                   #sprawdzenie czy rence sa frontem do kamery
@@ -60,7 +60,7 @@ class Hand_detector:
                       # print("2")
                       if(results.multi_hand_landmarks[0].landmark[16].y<results.multi_hand_landmarks[0].landmark[15].y):
                         if(results.multi_hand_landmarks[1].landmark[16].y<results.multi_hand_landmarks[1].landmark[15].y):
-                          print("3")
+                          # print("3")
                           #sprawdzenie czy palce kciukow sa w miate poziome
                           # horizontaly_distance=(((results.multi_hand_landmarks[0].landmark[5].x - results.multi_hand_landmarks[0].landmark[17].x)**2 + (results.multi_hand_landmarks[0].landmark[5].y - results.multi_hand_landmarks[0].landmark[17].y)**2)**0.5)
                           # horizontaly_distance=horizontaly_distance*(2/3)

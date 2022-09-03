@@ -158,6 +158,9 @@ freq = cv2.getTickFrequency()
 videostream = VideoStream(resolution=(imW, imH), framerate=30).start()
 time.sleep(1)
 
+cv2.namedWindow("Robot",cv2.WINDOW_NORMAL)
+# cv2.setWindowProperty("Robot",cv2.WND_PROP_FULLSCREEN,cv2.WINDOW_FULLSCREEN)
+
 # For frame1 in camera.capture_continuous(rawCapture, format="bgr", use_video_port=True):
 detection_list = []
 object_to_follow = object(imH / 2, imW / 2, 0, imW, 0, imH)
@@ -184,6 +187,8 @@ while True:
     frame_resized = cv2.resize(frame_rgb, (width, height))
     input_data = np.expand_dims(frame_resized, axis=0)
     
+    # Jesli miedzy wykrywaniem celu nie bylo przestoju wiekszego niz 5 sek (jesli prawda nie mozna uznac ze zgubiono cel) lub sledzona osoba wykonala gest w celu 
+    # przestania sledzenia
     if((time.time()-timer) < 5):
         # Normalize pixel values if using a floating model (i.e. if model is non-quantized)
         if floating_model:
@@ -239,63 +244,74 @@ while True:
         
         if min_distance != math.inf:
             min_distance = math.inf
-            timer=math.inf
+            timer=math.inf # zerowanie zegara
             find_flag=True
             object_to_follow = next_object
+            cv2.rectangle(frame, (object_to_follow.xmin, object_to_follow.ymin), (object_to_follow.xmax, object_to_follow.ymax), (0, 0, 255), 2)
             cv2.circle(frame, (object_to_follow.xcenter, object_to_follow.ycenter), 5, (0, 0, 255), thickness=-1)
             robot.run(imW, imH, object_to_follow.xcenter, object_to_follow.ycenter, object_to_follow.xmin, object_to_follow.xmax, object_to_follow.ymin, object_to_follow.ymax)
         else:
             if(find_flag==True):
-              timer=time.time()
-            find_flag=False
+              timer=time.time() # uruchomienie zegara zgubienia celu
+            find_flag=False 
             robot.stop()
-        if (robot.direction==0 ):
-            
+        
+        # Jesli wykrto obiekt do sledzenia i robot stoi
+        if (robot.stop==True ):
+            # Jesli nie uruchomiono timera w stanie stop to go uruchamiamy
             if(timer_zero==math.inf):
                 timer_zero=time.time()
+            # Jesli timer odliczajacy czas postoju obiektu przekroczyl 5 sekund. Uruchomione zostaje wykrywanie gestow
             if(time.time()-timer_zero>5):
+                # zmniejszanie obrazka do opszaru tylko i wylacznie czlowieka
                 croped=frame_rgb[object_to_follow.ymin:object_to_follow.ymax , object_to_follow.xmin:object_to_follow.xmax]
                 result,multi_hand_landmarks=Gesture.detect(croped)
-                if(result!=0):
+                if(result!=0): #jesli znaleziono rece/reke wyrysowujemy szkielet
                     for hand in multi_hand_landmarks:
                          for landmark in hand.landmark :
                             landmark.x=((landmark.x*(object_to_follow.xmax-object_to_follow.xmin))+(object_to_follow.xmin))/(imW)
                             landmark.y=((landmark.y*(object_to_follow.ymax-object_to_follow.ymin))+(object_to_follow.ymin))/(imH)
                          drawingModule.draw_landmarks(frame,hand,Gesture.handsModule.HAND_CONNECTIONS)
-                if(result==1):
-                    audio.mixer.music.load("./audio/Target_will_no_longer_be_followed.mp3")
+                if(result==1): #jesli pokazano wlasciwy gest, zaprzestano seldzic obiekt
+                    audio.mixer.music.load("/home/pi/Projekt/TrackingRobot/audio/Target_will_no_longer_be_followed.mp3")
                     audio.mixer.music.play()
                     object_to_follow=object(imH / 2, imW / 2, 0, imW, 0, imH)
-                    timer_zero=math.inf 
-                    timer=-math.inf
-                    delay_timer=time.time()
+                    timer_zero=math.inf #zerowanie timera odliczania stopu
+                    timer=-math.inf # ustawienie glownego timera na - inf w celu wejscai w stan tylko i wylacznie wykrywania rak
+                    delay_timer=time.time() #uruchomienie opoznienia miedzy wkryciem nastepnego celu
         else:
-           timer_zero=math.inf 
+           timer_zero=math.inf #robot sie porusza "zerowanie" zegara 
 
-    
+    # Jesli zgubiono cel/ cel stoi wystarczajacy czas
     else:
+     
+    #  Jesli minal czas opoznienia miedzy celowym zaprzestaniem sledzenia a ponownym sledzeniem/ w przypadku zgubienia warunek ten jest zawsze prawdziwy
      if(time.time()-delay_timer>4.5):
       croped=frame_rgb[0:imH,int(imW/5):int(imW*4/5)]
+      
+      #Jesli Prawda to uruchomiono timer zgubienia obiektu i czas przeznaczono na ponowne odnalezienie minal  
       if (timer != -math.inf):
-        audio.mixer.music.load("./audio/Target_was_lost.mp3")
-        audio.mixer.music.play()
-        object_to_follow=object(imH / 2, imW / 2, 0, imW, 0, imH)
-        timer=-math.inf
+         audio.mixer.music.load("/home/pi/Projekt/TrackingRobot/audio/Target_was_lost.mp3")
+         audio.mixer.music.play()
+         object_to_follow=object(imH / 2, imW / 2, 0, imW, 0, imH)
+         timer=-math.inf #timer na -inf w celu nie uruchamia tego ^ ifa
       result,multi_hand_landmarks=Gesture.detect(croped)
+      #jesli znaleziono rece   
       if(result!=0):
         for hand in multi_hand_landmarks:
             for landmark in hand.landmark :
                 landmark.x=(landmark.x*(4/5-1/5))+(1/5)
             drawingModule.draw_landmarks(frame,hand,Gesture.handsModule.HAND_CONNECTIONS)
+        # jesli wykryto prawidlowy gest
         if(result==1):
-            audio.mixer.music.load("./audio/Target_will_be_followed.mp3")
+            audio.mixer.music.load("/home/pi/Projekt/TrackingRobot/audio/Target_will_be_followed.mp3")
             audio.mixer.music.play()
-            timer=math.inf
+            timer=math.inf #timer na inf w celu wejscia w tryb wyszukiwania osob
 
     # All the results have been drawn on the frame, so it's time to display it.
    
     cv2.putText(frame, 'FPS: {0:.2f}'.format(frame_rate_calc), (30, 50), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 0, 255), 2, cv2.LINE_AA)
-    cv2.imshow('Object detector', frame)
+    cv2.imshow("Robot",frame)
 
     # Calculate framerate
     t2 = cv2.getTickCount()
@@ -305,6 +321,7 @@ while True:
     # Press 'q' to quit
     if cv2.waitKey(1) == ord('q'):
         break
+    
 
 # Clean up
 cv2.destroyAllWindows()

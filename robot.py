@@ -19,6 +19,7 @@ RIGHT=6
 class Robot:
     def __init__(self, A_ena, A_in1, A_in2, A_in3, A_in4, A_enb, B_ena, B_in1, B_in2, B_in3, B_in4, B_enb):
         self.direction=STOP
+        self.stop=True
 
         self.counter_track=0
 
@@ -156,7 +157,7 @@ class Robot:
                         # print("1: "+str(time.time()-self.start1))
                     # if (time.time()-self.start1>=1   and self.readings[0]>min_distance and self.readings[0]< detection_distance  and (self.readings[1]<min_distance or self.readings[1]> detection_distance )):
                     self.linear_drive("r",90,0,0)
-                    print("F_R")
+                    # print("F_R")
         else:
                 if(self.counter_1>counter_boundary):
                     self.stop_without_record()
@@ -188,7 +189,7 @@ class Robot:
                         # print("2: "+str(time.time()-self.start2))
                     # if (time.time()-self.start2>=1   and self.readings[1]>min_distance and self.readings[1]< detection_distance  and (self.readings[0]<min_distance or self.readings[0]> detection_distance )):
                     self.linear_drive("l",90,0,0)
-                    print("F_L")
+                    # print("F_L")
         else:
                 if(self.counter_2>counter_boundary):
                     self.stop_without_record()
@@ -211,7 +212,7 @@ class Robot:
                         #    print("3: "+str(time.time()-self.start3))
                     # if (time.time()-self.start3>=1   and self.readings[2]>min_distance and self.readings[2]< detection_distance  and (self.readings[3]<min_distance or self.readings[3]> detection_distance )):
                     self.linear_drive("r",90,0,0)
-                    print("B_R")
+                    # print("B_R")
         else:
                 if(self.counter_3>counter_boundary):
                     self.stop_without_record()
@@ -235,7 +236,7 @@ class Robot:
                         # print(self.readings)
                    
                     self.linear_drive("l",90,0,0)
-                    print("B_L")
+                    # print("B_L")
         else:
                 if(self.counter_4>counter_boundary):
                     self.stop_without_record()
@@ -250,7 +251,7 @@ class Robot:
             if(self.counter_5>counter_boundary):
                 self.stop_without_record()
                 self.obstacle_flaga=True
-                print("B_S")
+                # print("B_S")
         else:
             self.counter_5=0
 
@@ -278,22 +279,22 @@ class Robot:
         GPIO.output(self.B_in4, GPIO.LOW)                
                 
     def stop (self):
-        self.direction=STOP
-        self.obstacle_detection()
-        if(self.obstacle_flaga==False):
-            self.A_pwmA.ChangeDutyCycle(0)
-            self.A_pwmB.ChangeDutyCycle(0)
-            GPIO.output(self.A_in1, GPIO.LOW)
-            GPIO.output(self.A_in2, GPIO.LOW)
-            GPIO.output(self.A_in3, GPIO.LOW)
-            GPIO.output(self.A_in4, GPIO.LOW)
+        self.stop=True
+        # self.obstacle_detection()
+        # if(self.obstacle_flaga==False):
+        self.A_pwmA.ChangeDutyCycle(0)
+        self.A_pwmB.ChangeDutyCycle(0)
+        GPIO.output(self.A_in1, GPIO.LOW)
+        GPIO.output(self.A_in2, GPIO.LOW)
+        GPIO.output(self.A_in3, GPIO.LOW)
+        GPIO.output(self.A_in4, GPIO.LOW)
 
-            self.B_pwmA.ChangeDutyCycle(0)
-            self.B_pwmB.ChangeDutyCycle(0)
-            GPIO.output(self.B_in1, GPIO.LOW)
-            GPIO.output(self.B_in2, GPIO.LOW)
-            GPIO.output(self.B_in3, GPIO.LOW)
-            GPIO.output(self.B_in4, GPIO.LOW)
+        self.B_pwmA.ChangeDutyCycle(0)
+        self.B_pwmB.ChangeDutyCycle(0)
+        GPIO.output(self.B_in1, GPIO.LOW)
+        GPIO.output(self.B_in2, GPIO.LOW)
+        GPIO.output(self.B_in3, GPIO.LOW)
+        GPIO.output(self.B_in4, GPIO.LOW)
 
     def linear_drive(self, direction, speed, error, Kp):
         minspeed = 48.00
@@ -301,6 +302,7 @@ class Robot:
         if isinstance(speed, int) and (100 >= speed >= 0):
             if direction == "forward" or direction == "Forward" or direction == "f" or direction == "F":
                     self.direction=FORWARD
+                    self.stop=False
                     self.obstacle_detection()
                    
                     if(self.obstacle_flaga==False):
@@ -338,6 +340,7 @@ class Robot:
             elif direction == "backward" or direction == "Backward" or direction == "b" or direction == "B":
                 
                 self.direction=BACKWARD
+                self.stop=False
                 self.obstacle_detection()
                 if(self.obstacle_flaga==False):
                     self.direction=BACKWARD
@@ -408,6 +411,7 @@ class Robot:
         if isinstance(speed, int) and (100 >= speed >= 0):
             if direction == "left" or direction == "Left" or direction == "l" or direction == "L":
                 self.direction=L_ROTATION
+                self.stop=False
                 self.obstacle_detection()
                 if(self.obstacle_flaga==False):
                     GPIO.output(self.A_in1, GPIO.LOW)
@@ -426,6 +430,7 @@ class Robot:
 
             elif direction == "right" or direction == "Right" or direction == "r" or direction == "R":
                 self.direction=R_ROTATION
+                self.stop=False
                 self.obstacle_detection()
                 if(self.obstacle_flaga==False):
                    
