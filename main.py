@@ -257,7 +257,7 @@ while True:
             robot.stop()
         
         # Jesli wykrto obiekt do sledzenia i robot stoi
-        if (robot.stop==True ):
+        if (robot.stopBOOL==True ):
             # Jesli nie uruchomiono timera w stanie stop to go uruchamiamy
             if(timer_zero==math.inf):
                 timer_zero=time.time()

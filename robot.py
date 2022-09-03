@@ -19,7 +19,7 @@ RIGHT=6
 class Robot:
     def __init__(self, A_ena, A_in1, A_in2, A_in3, A_in4, A_enb, B_ena, B_in1, B_in2, B_in3, B_in4, B_enb):
         self.direction=STOP
-        self.stop=True
+        self.stopBOOL=True
 
         self.counter_track=0
 
@@ -279,7 +279,7 @@ class Robot:
         GPIO.output(self.B_in4, GPIO.LOW)                
                 
     def stop (self):
-        self.stop=True
+        self.stopBOOL=True
         # self.obstacle_detection()
         # if(self.obstacle_flaga==False):
         self.A_pwmA.ChangeDutyCycle(0)
@@ -302,7 +302,7 @@ class Robot:
         if isinstance(speed, int) and (100 >= speed >= 0):
             if direction == "forward" or direction == "Forward" or direction == "f" or direction == "F":
                     self.direction=FORWARD
-                    self.stop=False
+                    self.stopBOOL=False
                     self.obstacle_detection()
                    
                     if(self.obstacle_flaga==False):
@@ -340,7 +340,7 @@ class Robot:
             elif direction == "backward" or direction == "Backward" or direction == "b" or direction == "B":
                 
                 self.direction=BACKWARD
-                self.stop=False
+                self.stopBOOL=False
                 self.obstacle_detection()
                 if(self.obstacle_flaga==False):
                     self.direction=BACKWARD
@@ -411,7 +411,7 @@ class Robot:
         if isinstance(speed, int) and (100 >= speed >= 0):
             if direction == "left" or direction == "Left" or direction == "l" or direction == "L":
                 self.direction=L_ROTATION
-                self.stop=False
+                self.stopBOOL=False
                 self.obstacle_detection()
                 if(self.obstacle_flaga==False):
                     GPIO.output(self.A_in1, GPIO.LOW)
@@ -430,7 +430,7 @@ class Robot:
 
             elif direction == "right" or direction == "Right" or direction == "r" or direction == "R":
                 self.direction=R_ROTATION
-                self.stop=False
+                self.stopBOOL=False
                 self.obstacle_detection()
                 if(self.obstacle_flaga==False):
                    
