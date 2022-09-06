@@ -156,7 +156,7 @@ class Robot:
                     # if(time.time()-self.start1<1.5  and self.readings[0]>min_distance and self.readings[0]< detection_distance):
                         # print("1: "+str(time.time()-self.start1))
                     # if (time.time()-self.start1>=1   and self.readings[0]>min_distance and self.readings[0]< detection_distance  and (self.readings[1]<min_distance or self.readings[1]> detection_distance )):
-                    self.linear_drive("r",90,0,0)
+                    self.linear_drive("r",100,0,0)
                     # print("F_R")
         else:
                 if(self.counter_1>counter_boundary):
@@ -188,7 +188,7 @@ class Robot:
                     # if(time.time()-self.start2<0.75    and self.readings[1]>min_distance and self.readings[1]< detection_distance):
                         # print("2: "+str(time.time()-self.start2))
                     # if (time.time()-self.start2>=1   and self.readings[1]>min_distance and self.readings[1]< detection_distance  and (self.readings[0]<min_distance or self.readings[0]> detection_distance )):
-                    self.linear_drive("l",90,0,0)
+                    self.linear_drive("l",100,0,0)
                     # print("F_L")
         else:
                 if(self.counter_2>counter_boundary):
@@ -211,7 +211,7 @@ class Robot:
                     # if(time.time()<0.75 -self.start3 and self.readings[2]>min_distance and self.readings[2]< detection_distance  ):
                         #    print("3: "+str(time.time()-self.start3))
                     # if (time.time()-self.start3>=1   and self.readings[2]>min_distance and self.readings[2]< detection_distance  and (self.readings[3]<min_distance or self.readings[3]> detection_distance )):
-                    self.linear_drive("r",90,0,0)
+                    self.linear_drive("r",100,0,0)
                     # print("B_R")
         else:
                 if(self.counter_3>counter_boundary):
@@ -235,7 +235,7 @@ class Robot:
                         # print("4: "+str(time.time()-self.start4))
                         # print(self.readings)
                    
-                    self.linear_drive("l",90,0,0)
+                    self.linear_drive("l",100,0,0)
                     # print("B_L")
         else:
                 if(self.counter_4>counter_boundary):
