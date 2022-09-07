@@ -406,6 +406,7 @@ while True:
     
     
     else:   
+            robot.stop_without_record()
             if(posredni_timer==None):
                 posredni_timer=time.time()
 
@@ -452,38 +453,40 @@ while True:
 
             for osoba in detection_list:
                 if(Obszar_xmin < osoba.xcenter and osoba.xcenter < Obszar_xmax and Obszar_ymin < osoba.ycenter and osoba.ycenter < Obszar_ymax  ):
-                    for druga_osoba in detection_list:
-                        if (druga_osoba.xmin != osoba.xmin and druga_osoba.xmax != osoba.xmax and druga_osoba.ymin != osoba.ymin and druga_osoba.ymax != osoba.ymax):
-                            if((osoba.xmin<druga_osoba.xmax and druga_osoba.xmax<osoba.xmax )):
-                                Flaga_posrednia=False
-                                Main_flaga=False
-                                Colision_person=None
+                    if(((osoba.ymax-osoba.ymin)/(osoba.xmax-osoba.xmin))>2):
+                        for druga_osoba in detection_list:
+                            if(((druga_osoba.ymax-druga_osoba.ymin)/(druga_osoba.xmax-druga_osoba.xmin))>2):
+                                if (druga_osoba.xmin != osoba.xmin and druga_osoba.xmax != osoba.xmax and druga_osoba.ymin != osoba.ymin and druga_osoba.ymax != osoba.ymax):
+                                    if((osoba.xmin<druga_osoba.xmax and druga_osoba.xmax<osoba.xmax )):
+                                        Flaga_posrednia=False
+                                        Main_flaga=False
+                                        Colision_person=None
 
-                                Obszar_xmin=None
-                                Obszar_xmax=None
-                                Obszar_ymin=None
-                                Obszar_ymax=None
-                                Flaga_lewo=False
-                                Flaga_prawo=False
+                                        Obszar_xmin=None
+                                        Obszar_xmax=None
+                                        Obszar_ymin=None
+                                        Obszar_ymax=None
+                                        Flaga_lewo=False
+                                        Flaga_prawo=False
 
-                                delay_waiter=0
-                                posredni_timer=None
-                                
+                                        delay_waiter=0
+                                        posredni_timer=None
+                                        
 
-                            if((osoba.xmin<druga_osoba.xmin and druga_osoba.xmin<osoba.xmax )):
-                                Flaga_posrednia=False
-                                Main_flaga=False
-                                Colision_person=None
+                                    if((osoba.xmin<druga_osoba.xmin and druga_osoba.xmin<osoba.xmax )):
+                                        Flaga_posrednia=False
+                                        Main_flaga=False
+                                        Colision_person=None
 
-                                Obszar_xmin=None
-                                Obszar_xmax=None
-                                Obszar_ymin=None
-                                Obszar_ymax=None
-                                Flaga_lewo=False
-                                Flaga_prawo=False
+                                        Obszar_xmin=None
+                                        Obszar_xmax=None
+                                        Obszar_ymin=None
+                                        Obszar_ymax=None
+                                        Flaga_lewo=False
+                                        Flaga_prawo=False
 
-                                delay_waiter=0
-                                posredni_timer=None
+                                        delay_waiter=0
+                                        posredni_timer=None
             
             if(time.time()-posredni_timer>3.5):
                 Flaga_posrednia=False
