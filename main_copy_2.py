@@ -308,7 +308,7 @@ while True:
                             if((object_to_follow.xmin<osoba.xmax and osoba.xmax<object_to_follow.xmax )):    
                                 Main_flaga=True
                                 Colision_person=object(osoba.xcenter, osoba.ycenter, osoba.xmin, osoba.xmax, osoba.ymin, osoba.ymax)
-                                Obszar_xmin=osoba.xmin
+                                Obszar_xmin=(osoba.xmin+osoba.xcenter)/2
                                 Obszar_xmax=object_to_follow.xmax
                                 Obszar_ymin=osoba.ymin
                                 Obszar_ymax=osoba.ymax
@@ -320,7 +320,7 @@ while True:
                                 Main_flaga=True
                                 Colision_person=object(osoba.xcenter, osoba.ycenter, osoba.xmin, osoba.xmax, osoba.ymin, osoba.ymax)
                                 Obszar_xmin=object_to_follow.xmin
-                                Obszar_xmax=osoba.xmax
+                                Obszar_xmax=(osoba.xmax+osoba.xcenter)/2
                                 Obszar_ymin=osoba.ymin
                                 Obszar_ymax=osoba.ymax
                                 Flaga_prawo=True
