@@ -10,7 +10,7 @@ class Hand_detector:
   def __init__(self):
 
     self.handsModule= mediapipe.solutions.hands 
-    self.hand =self.handsModule.Hands(static_image_mode=True,min_detection_confidence=0.65, min_tracking_confidence=0.65, max_num_hands=2) 
+    self.hand =self.handsModule.Hands(static_image_mode=False,min_detection_confidence=0.53, min_tracking_confidence=0.53, max_num_hands=2) 
     # self.ret=-1
     # self.pom_thread=0
     # self.memory=0
