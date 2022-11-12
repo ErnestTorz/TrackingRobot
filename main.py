@@ -205,7 +205,8 @@ while True:
 
         # Loop over all detections and draw detection box if confidence is above minimum threshold
         for i in range(len(scores)):
-            if (scores[i] > min_conf_threshold) and (scores[i] <= 1.0) and (labels[int(classes[i])] =='person' or labels[int(classes[i])] == 'Person'):
+            if ((scores[i] > min_conf_threshold) and (scores[i] <= 1.0) 
+                and (labels[int(classes[i])] =='person' or labels[int(classes[i])] == 'Person')):
 
                 # Get bounding box coordinates and draw box
                 # Interpreter can return coordinates that are outside of image
@@ -236,7 +237,9 @@ while True:
         
         
         for i in detection_list:
-            if object_to_follow.distance(i) < min_distance and i.xcenter >= object_to_follow.xmin  and i.xcenter <= object_to_follow.xmax  and i.ycenter >= object_to_follow.ymin and i.ycenter <= object_to_follow.ymax:
+            if (object_to_follow.distance(i) < min_distance 
+            and i.xcenter >= object_to_follow.xmin and i.xcenter <= object_to_follow.xmax  
+            and i.ycenter >= object_to_follow.ymin and i.ycenter <= object_to_follow.ymax):
                 next_object = i
                 min_distance = object_to_follow.distance(i)
         
@@ -247,9 +250,15 @@ while True:
             timer=math.inf # zerowanie zegara
             find_flag=True
             object_to_follow = next_object
-            cv2.rectangle(frame, (object_to_follow.xmin, object_to_follow.ymin), (object_to_follow.xmax, object_to_follow.ymax), (0, 0, 255), 2)
-            cv2.circle(frame, (object_to_follow.xcenter, object_to_follow.ycenter), 5, (0, 0, 255), thickness=-1)
-            robot.run(imW, imH, object_to_follow.xcenter, object_to_follow.ycenter, object_to_follow.xmin, object_to_follow.xmax, object_to_follow.ymin, object_to_follow.ymax)
+            
+            cv2.rectangle(frame, (object_to_follow.xmin, object_to_follow.ymin), 
+            (object_to_follow.xmax, object_to_follow.ymax), (0, 0, 255), 2)
+
+            cv2.circle(frame, (object_to_follow.xcenter, object_to_follow.ycenter),
+            5, (0, 0, 255), thickness=-1)
+
+            robot.run(imW, imH, object_to_follow.xcenter, object_to_follow.ycenter, object_to_follow.xmin, 
+            object_to_follow.xmax, object_to_follow.ymin, object_to_follow.ymax)
         else:
             if(find_flag==True):
               timer=time.time() # uruchomienie zegara zgubienia celu
@@ -264,13 +273,20 @@ while True:
             # Jesli timer odliczajacy czas postoju obiektu przekroczyl 5 sekund. Uruchomione zostaje wykrywanie gestow
             if(time.time()-timer_zero>5):
                 # zmniejszanie obrazka do opszaru tylko i wylacznie czlowieka
-                croped=frame_rgb[object_to_follow.ymin:object_to_follow.ymax , object_to_follow.xmin:object_to_follow.xmax]
+                croped=frame_rgb[object_to_follow.ymin:object_to_follow.ymax
+                ,object_to_follow.xmin:object_to_follow.xmax]
+                
                 result,multi_hand_landmarks=Gesture.detect(croped)
                 if(result!=0): #jesli znaleziono rece/reke wyrysowujemy szkielet
                     for hand in multi_hand_landmarks:
                          for landmark in hand.landmark :
-                            landmark.x=((landmark.x*(object_to_follow.xmax-object_to_follow.xmin))+(object_to_follow.xmin))/(imW)
-                            landmark.y=((landmark.y*(object_to_follow.ymax-object_to_follow.ymin))+(object_to_follow.ymin))/(imH)
+
+                            landmark.x=(((landmark.x*(object_to_follow.xmax-object_to_follow.xmin)))
+                            +(object_to_follow.xmin))/(imW)
+
+                            landmark.y=(((landmark.y*(object_to_follow.ymax-object_to_follow.ymin))
+                            +(object_to_follow.ymin))/(imH))
+
                          drawingModule.draw_landmarks(frame,hand,Gesture.handsModule.HAND_CONNECTIONS)
                 if(result==1): #jesli pokazano wlasciwy gest, zaprzestano seldzic obiekt
                     audio.mixer.music.load("/home/pi/Projekt/TrackingRobot/audio/Target_will_no_longer_be_followed.mp3")

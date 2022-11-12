@@ -109,155 +109,77 @@ class Robot:
     
     def run(self, frame_x_size, frame_y_size, object_x_center, object_y_center, xmin, xmax, ymin, ymax):
         if (self.pom_thread == 0):
-            # if self.Sensors.lock==False:
-                # if(self.Sensors.sensor1.data_ready and self.Sensors.sensor2.data_ready and self.Sensors.sensor3.data_ready and self.Sensors.sensor4.data_ready ):
-                #  self.readings= self.Sensors.reading()
             self.readings=self.ADC.reading()
-            self.thread = Thread(target=self.robot_controler, args=(frame_x_size, frame_y_size, object_x_center, object_y_center, xmin, xmax, ymin, ymax)).start()
+            self.thread = Thread(target=self.robot_controler, args=(frame_x_size, frame_y_size, 
+            object_x_center, object_y_center, xmin, xmax, ymin, ymax)).start()
             self.pom_thread = 1
 
         if self.pom_thread==1:
             if ((Thread)(self.thread)).is_alive() == False:
-                # if self.Sensors.lock==False:
-                    # if(self.Sensors.sensor1.data_ready and self.Sensors.sensor2.data_ready and self.Sensors.sensor3.data_ready and self.Sensors.sensor4.data_ready ):
-                    # self.readings= self.Sensors.reading()
-                self.readings=self.ADC.reading()
-                    # print(self.readings)
-                
-                self.thread = Thread(target=self.robot_controler, args=(frame_x_size, frame_y_size, object_x_center, object_y_center, xmin, xmax, ymin, ymax)).start()
+                self.readings=self.ADC.reading()           
+                self.thread = Thread(target=self.robot_controler, args=(frame_x_size, frame_y_size, 
+                object_x_center, object_y_center, xmin, xmax, ymin, ymax)).start()
     
     def  obstacle_detection(self):
         self.obstacle_flaga=False
-        # detection_distance=160
-        # min_distance=15
         detection_distance=3.3
         min_distance=0.7
         counter_boundary=4
-    
-    
-        # if(self.Sensors.Error==False):   
-        if(self.direction==FORWARD and self.readings[0]>min_distance and self.readings[0]<= detection_distance and (self.readings[1]<min_distance or self.readings[1]> detection_distance)):
-                # if self.counter_1 ==0:
-                #  self.counter_1+=1
-                # #  self.sensor_save_1=copy.copy(self.readings)
-
-                # # if (self.readings[0]<=self.sensor_save_1[0]+5 and self.readings[0]>=self.sensor_save_1[0]-5):
-                # else:
+     
+        if(self.direction==FORWARD and self.readings[0]>min_distance and self.readings[0]<= detection_distance 
+        and (self.readings[1]<min_distance or self.readings[1]> detection_distance)):
                 self.counter_1+=1
-                # else:
-                #   self.counter_1=0
-
                 if(self.counter_1>counter_boundary):
                     self.obstacle_flaga=True
-                    # if(self.flaga_detect_1==0):
-                        # self.start1=time.time()
-                        # self.stop_without_record()
                     self.flaga_detect_1=1
-                    # if(time.time()-self.start1<1.5  and self.readings[0]>min_distance and self.readings[0]< detection_distance):
-                        # print("1: "+str(time.time()-self.start1))
-                    # if (time.time()-self.start1>=1   and self.readings[0]>min_distance and self.readings[0]< detection_distance  and (self.readings[1]<min_distance or self.readings[1]> detection_distance )):
                     self.linear_drive("r",100,0,0)
-                    # print("F_R")
         else:
                 if(self.counter_1>counter_boundary):
                     self.stop_without_record()
-                    # time.sleep(0.5)
-                # self.flaga_detect_1=0
-                # self.start1=0
-                self.counter_1=0
+                self.counter_1=0 
 
-
-       
-           
-        if(self.direction==FORWARD and self.readings[1]>min_distance and self.readings[1]<= detection_distance and (self.readings[0]<min_distance or self.readings[0]> detection_distance)):
-                # if self.counter_2 ==0:
-                #  self.counter_2+=1
-                # #  self.sensor_save_2=copy.copy(self.readings)
-
-                # # if (self.readings[1]<=self.sensor_save_2[1]+5 and self.readings[1]>=self.sensor_save_2[1]-5):
-                # else:
+        if(self.direction==FORWARD and self.readings[1]>min_distance and self.readings[1]<= detection_distance 
+        and (self.readings[0]<min_distance or self.readings[0]> detection_distance)):
                 self.counter_2+=1
-                # else:
-                #   self.counter_2=0
                 if(self.counter_2>counter_boundary):
                     self.obstacle_flaga=True
-                    # if(self.flaga_detect_2==0):
-                        # self.start2=time.time()
-                        # self.stop_without_record()
-                        # self.flaga_detect_2=1
-                    # if(time.time()-self.start2<0.75    and self.readings[1]>min_distance and self.readings[1]< detection_distance):
-                        # print("2: "+str(time.time()-self.start2))
-                    # if (time.time()-self.start2>=1   and self.readings[1]>min_distance and self.readings[1]< detection_distance  and (self.readings[0]<min_distance or self.readings[0]> detection_distance )):
                     self.linear_drive("l",100,0,0)
-                    # print("F_L")
         else:
                 if(self.counter_2>counter_boundary):
                     self.stop_without_record()
-                    # time.sleep(0.5)
-                # self.flaga_detect_2=0
-                # self.start2=0
                 self.counter_2=0
-
-
          
-        if(self.direction==BACKWARD and self.readings[2]>min_distance and self.readings[2]<= detection_distance and (self.readings[3]<min_distance or self.readings[3]> detection_distance)):
+        if(self.direction==BACKWARD and self.readings[2]>min_distance and self.readings[2]<= detection_distance 
+        and (self.readings[3]<min_distance or self.readings[3]> detection_distance)):
                 self.counter_3+=1
                 if(self.counter_3>counter_boundary):
                     self.obstacle_flaga=True
-                    # if(self.flaga_detect_3==0):
-                        #  self.start3=time.time()
-                        #  self.stop_without_record()
-                        #  self.flaga_detect_3=1
-                    # if(time.time()<0.75 -self.start3 and self.readings[2]>min_distance and self.readings[2]< detection_distance  ):
-                        #    print("3: "+str(time.time()-self.start3))
-                    # if (time.time()-self.start3>=1   and self.readings[2]>min_distance and self.readings[2]< detection_distance  and (self.readings[3]<min_distance or self.readings[3]> detection_distance )):
                     self.linear_drive("r",100,0,0)
-                    # print("B_R")
         else:
                 if(self.counter_3>counter_boundary):
                     self.stop_without_record()
-                    # time.sleep(0.5)
-                # self.flaga_detect_3=0
-                # self.start3=0
-                self.counter_3=0
+                self.counter_3=0        
         
-
-        
-        if(self.direction==BACKWARD and self.readings[3]>min_distance and self.readings[3]<= detection_distance and (self.readings[2]<min_distance or self.readings[2]> detection_distance)):
+        if(self.direction==BACKWARD and self.readings[3]>min_distance and self.readings[3]<= detection_distance 
+        and (self.readings[2]<min_distance or self.readings[2]> detection_distance)):
                 self.counter_4+=1
                 if(self.counter_4>counter_boundary):
-                    self.obstacle_flaga=True
-                    # if(self.flaga_detect_4==0): 
-                        # self.start4=time.time()
-                        # self.stop_without_record()
-                        # self.flaga_detect_4=1
-                    # if(time.time()-self.start4<0.75  and self.readings[3]>min_distance and self.readings[3]< detection_distance  ):
-                        # print("4: "+str(time.time()-self.start4))
-                        # print(self.readings)
-                   
+                    self.obstacle_flaga=True                  
                     self.linear_drive("l",100,0,0)
-                    # print("B_L")
         else:
                 if(self.counter_4>counter_boundary):
                     self.stop_without_record()
-                    # time.sleep(0.5)
-                # self.flaga_detect_4=0
-                # self.start4=0
                 self.counter_4=0
-        
-         
-        if(self.direction==BACKWARD and self.readings[2]>min_distance and self.readings[2]<= detection_distance and self.readings[3]>min_distance and self.readings[3]<= detection_distance):
+                
+        if(self.direction==BACKWARD and self.readings[2]>min_distance and self.readings[2]<= detection_distance 
+        and self.readings[3]>min_distance and self.readings[3]<= detection_distance):
             self.counter_5+=1
             if(self.counter_5>counter_boundary):
                 self.stop_without_record()
                 self.obstacle_flaga=True
-                # print("B_S")
         else:
             self.counter_5=0
 
-        # else:
-        #     self.obstacle_flaga=True
-        #     self.stop_without_record()
             
 
                 
@@ -280,8 +202,6 @@ class Robot:
                 
     def stop (self):
         self.stopBOOL=True
-        # self.obstacle_detection()
-        # if(self.obstacle_flaga==False):
         self.A_pwmA.ChangeDutyCycle(0)
         self.A_pwmB.ChangeDutyCycle(0)
         GPIO.output(self.A_in1, GPIO.LOW)
@@ -337,7 +257,8 @@ class Robot:
                             self.A_pwmA.ChangeDutyCycle(speed - (error * Kp))
                             self.A_pwmB.ChangeDutyCycle(speed - (error * Kp))
 
-            elif direction == "backward" or direction == "Backward" or direction == "b" or direction == "B":
+            elif (direction == "backward" or direction == "Backward" 
+            or direction == "b" or direction == "B"):
                 
                 self.direction=BACKWARD
                 self.stopBOOL=False
@@ -375,7 +296,6 @@ class Robot:
                         self.A_pwmB.ChangeDutyCycle(speed + (error * Kp))
             
             elif direction == "right" or direction == "Right" or direction == "r" or direction == "R":
-                #self.direction=RIGHT
                     GPIO.output(self.A_in1, GPIO.LOW)
                     GPIO.output(self.A_in3, GPIO.LOW)
                     GPIO.output(self.A_in2, GPIO.HIGH)
@@ -390,8 +310,7 @@ class Robot:
                     self.B_pwmA.ChangeDutyCycle(speed)
                     self.B_pwmB.ChangeDutyCycle(speed)
 
-            elif direction == "left" or direction == "Left" or direction == "l" or direction == "L":
-               
+            elif direction == "left" or direction == "Left" or direction == "l" or direction == "L":              
                     GPIO.output(self.A_in2, GPIO.LOW)
                     GPIO.output(self.A_in4, GPIO.LOW)
                     GPIO.output(self.A_in1, GPIO.HIGH)
@@ -448,10 +367,9 @@ class Robot:
                     self.B_pwmA.ChangeDutyCycle(speed)
                     self.B_pwmB.ChangeDutyCycle(speed)
 
-                # if(self.flaga_detect_4==0 and self.flaga_detect_3 ==0):
-                #     time.sleep(0.5)
+               
     
-    def robot_controler(self, frame_x_size, frame_y_size, object_x_center, object_y_center, xmin, xmax, ymin, ymax):
+    def robot_controler(self,frame_x_size,frame_y_size,object_x_center,object_y_center, xmin, xmax, ymin, ymax):
         ####LINIOWA JAZDA#####
         Kplf = 50   #Wzmocnienie jazdy do [przodu], szybkosc korekcji ruchu lewo/prawo
         Kplb = Kplf #Wzmocnienie jazdy do  [tylu] , szybkosc korekcji ruchu lewo/prawo
